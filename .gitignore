@@ -1,0 +1,10 @@
+.idea/
+*.log
+vendor/
+tmp/
+npm-debug.log*
+*.pid
+*.seed
+node_modules/
+.npm
+*.sublime-project

@@ -1,17 +1,14 @@
 {
   "name": "Slim3-Skeleton",
-  "description": "Slim3 Skeleton + Nice Admin Layout",
+  "description": "Slim3 Skeleton",
   "license": "MIT",
   "type": "project",
-  "keywords": [
-    "slim",
-    "slim3"
-  ],
+  "keywords": [ "slim3", "evrima", "Skeleton-app" ],
   "authors": [
     {
-      "name": "Sarfraz Ahmed",
-      "email": "sarfraznawaz2005@gmail.com",
-      "homepage": "https://codeinphp.github.io"
+      "name": "yasin inat",
+      "email": "risyasin@gmail.com",
+      "homepage": "https://www.yasininat.com"
     }
   ],
   "autoload": {

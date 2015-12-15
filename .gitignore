@@ -2,6 +2,7 @@
 *.log
 vendor/
 tmp/
+bower_components/
 npm-debug.log*
 *.pid
 *.seed

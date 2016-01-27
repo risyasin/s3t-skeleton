@@ -1,4 +1,8 @@
 <?php
+
+
+$app = App\Base::$app;
+
 // Routes
 
-$app->get('/', 'App\Action\Home:dispatch')->setName('home');
+$app->get('/', 'App\Action\Home:index')->setName('home');

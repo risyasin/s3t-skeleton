@@ -1,0 +1,21 @@
+{% extends "web/layout/default.twig" %}
+
+
+{% block body %}
+
+    <div>
+        <h2>{{ project.name }}</h2>
+        <p>{{ project.description }}</p>
+    </div>
+
+    <div>
+        <a href="{{ path_for('auth.login') }}"> Login here!</a> -
+
+        <a href="{{ path_for('auth.logout') }}"> Logout</a> -
+
+        <a href="{{ path_for('admin.home') }}"> Admin Dash</a> -
+    </div>
+
+
+
+{% endblock body %}

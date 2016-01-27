@@ -1,21 +1,30 @@
 <?php
+
 namespace App\Action;
 
+use App\Base;
 use App\AbstractAction;
+use App\Models\User as User;
+
 
 final class Home extends AbstractAction
 {
 
-    public function dispatch($request, $response, $args)
+
+    public function index($request, $response, $args)
     {
 
-        $data['title'] = 'Slim 3 asd asdasdasd';
+//         $post = R::findOne('posts', 'id = ?', [4]);
+//
+//        $data['post'] = $post->getProperties();
 
-        $this->view->render($response, 'home.twig', $data);
+        $data['users'] = User::findAll('ORDER BY name ASC LIMIT 5');
+        // $data['nusers'] = R::findAll( 'fblg_user', 'ORDER BY name ASC LIMIT 5');
 
-        $this->logger->info('etwrasdasd');
+        // return Base::json($data);
 
-        return $response;
+        return Base::render('web/home.twig', $data);
+
     }
 
 }

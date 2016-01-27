@@ -1,0 +1,33 @@
+{% extends 'modules/admin/layout.twig' %}
+
+{% block body %}
+
+    <section class="content-header">
+        <div class="row">
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+                <li class="active">Here</li>
+            </ol>
+        </div>
+
+        <h1>
+            {{ project.name }}
+            <small>{{ project.description }} </small>
+        </h1>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <pre>
+                    {{ dump(server) }}
+                </pre>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+
+        Welcome to Slim3 Admin!
+
+    </section>
+
+{% endblock body %}

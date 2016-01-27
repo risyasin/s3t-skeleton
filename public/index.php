@@ -7,16 +7,6 @@ if (PHP_SAPI == 'cli-server') {
 
 define('_DROOT', dirname(__DIR__));
 
-require(_DROOT.'/vendor/autoload.php');
+require _DROOT.'/vendor/autoload.php';
 
-// session_start();
-
-$app = new \Slim\App(['settings' => require(_DROOT.'/app/settings.php')]);
-
-require(_DROOT.'/app/dependencies.php');
-
-require(_DROOT.'/app/routes.php');
-
-
-$app->run();
-
+\App\Base::run();

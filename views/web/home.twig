@@ -1,0 +1,23 @@
+{% extends 'web/layout/default.twig' %}
+
+{% block content %}
+<!-- Header -->
+<header>
+    <div class="container">
+        <div class="intro-text">
+            <div class="intro-lead-in">Welcome To Our Studio!</div>
+            <div class="intro-heading">It's Nice To Meet You</div>
+            <a href="/about" class="page-scroll btn btn-lg intro-btn">Tell Me More</a>
+
+            <div class="">
+                <a class="page-scroll btn btn-sm intro-btn" href="{{ path_for('auth.login') }}"> Login here!</a>
+                <a class="page-scroll btn btn-sm intro-btn" href="{{ path_for('auth.logout') }}"> Logout</a>
+                <a class="page-scroll btn btn-sm intro-btn" href="{{ path_for('admin.home') }}"> Admin Dash</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+{% include 'web/section/about.twig' %}
+
+{% endblock %}

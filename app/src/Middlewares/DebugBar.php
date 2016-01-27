@@ -23,6 +23,13 @@ class DebugBar
 
     public $container;
 
+    /* @var $logger \Monolog\Logger */
+    public $logger;
+
+    /* @var $debugbar \DebugBar\StandardDebugBar */
+    public $debugbar;
+
+
     /**
      * DebugBar Middleware constructor.
      * @param $container
@@ -31,6 +38,11 @@ class DebugBar
     {
         /* @var $container \Slim\Container */
         $this->container = $container;
+
+        $this->logger = $this->container->get('logger');
+
+        $this->debugbar = $this->container->get('debugbar');
+
     }
 
 
@@ -61,14 +73,12 @@ class DebugBar
         //$response->getBody()->write('BEFORE');
         $response = $next($request, $response);
 
-        /* @var $dbjr \DebugBar\JavascriptRenderer */
-        $dbjr = $this->container->get('debugbarRenderer');
 
-        $appendHead = $dbjr->renderHead();
+        $appendHead = $this->debugbar->getJavascriptRenderer()->renderHead();
         $response = $this->replaceContent($response, '</head>', $appendHead.'</head>');
 
-        $appendBody = $dbjr->render();
-        $response = $this->replaceContent($response, ['</body>'], $appendBody.'</body>');
+        $appendBody = $this->debugbar->getJavascriptRenderer()->render();
+        $response = $this->replaceContent($response, '</body>', $appendBody.'</body>');
 
         return $response;
     }
@@ -95,10 +105,17 @@ class DebugBar
     {
         $extMap = [
             'js' => 'text/javascript',
-            'css' => 'text/css'
+            'css' => 'text/css',
+            'png' => 'image/png',
+            'jpg' => 'image/jpeg',
+            'woff' => 'application/font-woff',
+            'woff2' => 'application/font-woff2'
         ];
 
+
         $ext = pathinfo($filePath, PATHINFO_EXTENSION);
+
+        // $this->logger->info('ext: '.$ext.' - '.$filePath);
 
         if (array_key_exists($ext, $extMap)){
 

@@ -1,0 +1,85 @@
+{% extends "modules/auth/layout.twig" %}
+
+{% block body %}
+
+    <div class="login-box">
+        <div class="login-logo">
+            <a href="/"><b>{{ project.name }}</b></a>
+        </div>
+        <!-- /.login-logo -->
+        <div class="login-box-body">
+            <p class="login-box-msg">{% trans "Sign in to start your session" %}</p>
+            <form action="{{ path_for('auth.login') }}" method="post" id="login">
+                <div class="form-group has-feedback">
+                    <input type="text" class="form-control" name="user" placeholder="{% trans "User name or Email" %}">
+                    <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    <input id="pass" type="password" class="form-control" name="pass" placeholder="{% trans "Password" %}">
+                    <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                </div>
+                <div class="row">
+                    <div class="col-xs-8">
+                        <div class="checkbox icheck">
+                            <label>
+                                <input name="rememberme" value="1" type="checkbox"> {% trans "Remember Me" %}
+                            </label>
+                        </div>
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-xs-4">
+                        <button type="submit" class="btn btn-primary btn-block">{% trans "Sign In" %}</button>
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <input type="hidden" name="csrf_name" value="{{ csrf_name }}">
+                <input type="hidden" name="csrf_value" value="{{ csrf_value }}">
+            </form>
+
+            {% if forgotPass %}<a href="#">{% trans "Forgot your password?" %}</a><br>{% endif %}
+            {% if forgotPass %}<a href="#">{% trans "Register account" %}</a><br>{% endif %}
+            {#<a href="register.html" class="text-center">Register</a>#}
+        </div>
+        <!-- /.login-box-body -->
+        {% if error %}
+            <diw class="row">
+                <div class="col-xs-12">
+                    <div class="alert alert-danger alert-dismissible">
+                        {% if error == 'form.submission' %}
+                            {% trans 'Form submission failed.' %} {% trans 'Please try again!' %}
+                        {% elseif error == 'missing.username' %}
+                            {% trans 'Username or email is missing.' %} {% trans 'Please try again!' %}
+                        {% elseif error == 'wrong.password' %}
+                            {% trans 'Wrong password.' %}  {% trans 'Please try again!' %}
+                        {% else %}
+                            {{ error }}
+                        {% endif %}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="{% trans "Close" %}">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </diw>
+        {% endif %}
+    </div>
+    <!-- /.login-box -->
+
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('input[name=rememberme]').iCheck({
+            checkboxClass: 'icheckbox_square-blue',
+            radioClass: 'iradio_square-blue',
+            increaseArea: '20%' // optional
+        });
+
+        $('#login').submit(function (e) {
+            var p = $('#pass');
+            p.val(SparkMD5.hash(p.val(), false));
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,33 @@
+{
+  "name": "slim3",
+  "description": "Slim3 skeleton app",
+  "main": "gulpfile.js",
+  "authors": [
+    "yasin inat"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "slim3-skeleton"
+  ],
+  "moduleType": [
+    "amd"
+  ],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "AdminLTE": "admin-lte#~2.3.2",
+    "Ionicons": "ionicons#~2.0.1",
+    "font-awesome": "~4.5.0",
+    "iCheck": "icheck#~1.0.2",
+    "jquery": "~2.1.4",
+    "SparkMD5": "spark-md5#~2.0.0",
+    "tinymce": "tinymce-dist#~4.3.2",
+    "twig.js": "~0.8.6"
+  }
+}

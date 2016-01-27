@@ -1,0 +1,40 @@
+<aside class="main-sidebar">
+    <section class="sidebar"><br>
+        <ul class="sidebar-menu">
+            <li class="header">{% trans "Modules" %}</li>
+
+            {#<li><a href="{{ path_for('admiin.pages') }}"><i class="fa fa-list"></i><span>{% trans 'CMS' %}</span></a></li>#}
+
+            <li class="treeview">
+                <a href="{{ path_for('admin.pages') }}"><i class="fa fa-list"></i><span>{% trans 'Manage Content' %}</span>
+                        <i class="fa fa-angle-left pull-right"></i></a>
+                <ul class="treeview-menu">
+                    <li><a href="{{ path_for('admin.pages') }}">{% trans 'Site pages' %}</a></li>
+                    <li><a href="{{ path_for('admin.pages') }}">{% trans 'Create new page' %} <i class="fa fa-plus pull-right"></i></a></li>
+                    <li><a href="{{ path_for('admin.menus') }}">{% trans 'Site menus' %}</a></li>
+                    <li><a href="{{ path_for('admin.templates') }}">{% trans 'Templates' %}</a></li>
+                </ul>
+            </li>
+
+            <li class="treeview">
+                <a href="{{ path_for('admin.users') }}"><i class="fa fa-users"></i><span>{% trans 'Manage Users' %}</span>
+                        <i class="fa fa-angle-left pull-right"></i></a>
+                <ul class="treeview-menu">
+
+                    <li><a href="{{ path_for('admin.users') }}">{% trans 'User list' %}</a></li>
+                    <li><a href="{{ path_for('admin.users') }}">{% trans 'Create new user' %} <i class="fa fa-plus pull-right"></i></a></li>
+                    <li><a href="{{ path_for('admin.roles') }}">{% trans 'User roles' %}</a></li>
+                </ul>
+            </li>
+
+            {#<li><a href="#"><span>Another Link</span></a></li>#}
+            {#<li class="treeview">#}
+                {#<a href="#"><span>Multilevel</span> <i class="fa fa-angle-left pull-right"></i></a>#}
+                {#<ul class="treeview-menu">#}
+                    {#<li><a href="#">Link in level 2</a></li>#}
+                    {#<li><a href="#">Link in level 2</a></li>#}
+                {#</ul>#}
+            {#</li>#}
+        </ul>
+    </section>
+</aside>

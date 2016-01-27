@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ project.name }}</title>
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <link rel="stylesheet" href="/ui/modules/admin.all.min.css" type="text/css">
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+    {% include 'modules/admin/inc/head.twig' %}
+</head>
+<body class="skin-purple hold-transition sidebar-collapse sidebar-mini">
+
+<div class="wrapper">
+    {% include 'modules/admin/inc/header.twig' %}
+    {% include 'modules/admin/inc/sidebar.twig' %}
+
+    <div class="content-wrapper">
+        {{ block("body") }}
+    </div>
+    {% include 'modules/admin/inc/footer.twig' %}
+</div>
+
+<script src="/ui/modules/admin.all.min.js"></script>
+</body>
+</html>

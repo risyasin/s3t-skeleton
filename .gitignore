@@ -14,3 +14,5 @@ npm-debug.log*
 
 public/ui/modules/*.min.css
 public/ui/modules/*.min.js
+
+composer.lock

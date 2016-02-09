@@ -8,8 +8,6 @@
 
 namespace App;
 
-use Slim\App as Slim3;
-use Slim\Container;
 use Slim\Views\Twig;
 use Slim\Views\TwigExtension;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,7 +19,7 @@ use DebugBar\StandardDebugBar;
 use DebugBar\DataCollector\ConfigCollector;
 use DebugBar\Bridge\Twig\TraceableTwigEnvironment;
 use DebugBar\Bridge\Twig\TwigCollector;
-use DebugBar\DataCollector\ExceptionsCollector;
+//use DebugBar\DataCollector\ExceptionsCollector;
 use DebugBar\DataCollector\PDO\TraceablePDO;
 use DebugBar\DataCollector\PDO\PDOCollector;
 use RedBeanPHP\R as R;
@@ -31,44 +29,61 @@ trait BaseHelper
 {
 
     /**
+     * Configuration parser
+     * Reads & adds `app/config/default.php` by default.
+     * this holds platform or developer agnostic settings such as project.name
+     * Platform specific config can be set by env variable APP_ENV.
+     * Applies if an environment given such as development or production
+     * This holds platform specific configurations eg: `app/config/development.php`
+     * Developer specific config can be set by env variable APP_DEV.
+     * that merges Developer specific configuration eg: `app/config/yasin.php`
      *
      */
     private static function setupConfig()
     {
-        // Default config.
-        $config = require _DROOT.'/app/config/default.php';
 
-        // you can overwrite your setting by environment variable "APP_ENV".
-        if ($_SERVER['APP_ENV'] ?? false) {
-            /* @var String $envConfigFile app/config/development.php */
-            $envConfigFile = _DROOT.'/app/config/'.$_SERVER['APP_ENV'].'.php';
+        try {
+            // Default config.
+            $config = require _DROOT.'/app/config/default.php';
+
+            // you can overwrite your setting by environment variable "APP_ENV".
+            $envConfigFile = _DROOT.'/app/config/'.Base::$env.'.php';
             if (is_file($envConfigFile) && is_readable($envConfigFile)){
                 $envConfig = require $envConfigFile;
                 if (is_array($envConfig)){ $config = array_replace_recursive($config, $envConfig); }
             }
-        }
 
-        // you can even add your own config,
-        // in case of multiple developers/servers in different environments
-        if ($_SERVER['APP_DEV'] ?? false) {
-            /* @var String $devConfigFile app/config/myname.php */
-            $devConfigFile = _DROOT.'/app/config/'.$_SERVER['APP_DEV'].'.php';
-            if (is_file($devConfigFile) && is_readable($devConfigFile)){
-                $devConfig = require $devConfigFile;
-                if (is_array($devConfig)){ $config = array_replace_recursive($config, $devConfig); }
+
+            // you can even add your own config,
+            // in case of multiple developers/servers in different environments
+            if (!empty(Base::$dev)) {
+                /* @var String $devConfigFile app/config/myname.php */
+                $devConfigFile = _DROOT.'/app/config/'.Base::$dev.'.php';
+                if (is_file($devConfigFile) && is_readable($devConfigFile)){
+                    $devConfig = require $devConfigFile;
+                    if (is_array($devConfig)){ $config = array_replace_recursive($config, $devConfig); }
+                }
             }
-        }
 
-        Base::$modules = ['config'];
-        Base::$c = $config;
-        Base::$cfg = $config['settings'];
+            // injecting first config into DI/Pimple
+            Base::$c = $config;
+
+            Base::$cfg = $config['settings'];
+
+        } catch(\Exception $e) {
+            // Base::discard is not ready here. so using php error
+            trigger_error('Unable to load config! Can not continue.', E_CORE_ERROR);
+        }
 
     }
 
 
 
-
-
+    /**
+     * Module loader / Manager
+     * Loads modules that has register method defined
+     *
+     */
     public static function setupModules()
     {
 
@@ -119,6 +134,13 @@ trait BaseHelper
     }
 
 
+    /**
+     * Base Hive setter
+     *
+     * @param $key
+     * @param $val
+     * @return mixed
+     */
     public static function set($key, $val)
     {
 
@@ -129,6 +151,13 @@ trait BaseHelper
     }
 
 
+    /**
+     * Base Hive getter
+     *
+     * @param $key
+     * @param null $default
+     * @return null
+     */
     public static function get($key, $default = null)
     {
 
@@ -136,8 +165,9 @@ trait BaseHelper
 
     }
 
+
     /**
-     * Response JSON
+     * Response as JSON
      *
      * @param $data
      * @return int
@@ -172,15 +202,19 @@ trait BaseHelper
     public static function stateLog($msg = null)
     {
 
-        if (Base::$debugbar ?? false){
+        if (Base::$debugbar){
+            /* @var \DebugBar\DataCollector\TimeDataCollector $tc */
             $tc = Base::$debugbar['time'];
 
-            if (Base::$currentState > 0){
-                $tc->stopMeasure(Base::$currentState);
+            if (Base::$currentState > 0 &&
+                $tc->hasStartedMeasure((string) Base::$currentState)) {
+                $tc->stopMeasure((string) Base::$currentState);
             }
 
             ++Base::$currentState;
+
             $msg = $msg ?? 'State changed to '.Base::$currentState;
+
             $tc->startMeasure((string) Base::$currentState, $msg);
 
         }
@@ -188,13 +222,14 @@ trait BaseHelper
     }
 
 
+
     /**
-     * Generic logger fn
+     * Generic logger fn, mutant method. overloads by environment
      * @param $log
      */
     public static function log($log)
     {
-        if (Base::$debugbar ?? false){
+        if (Base::$debugbar){
             Base::$c->get('debugbar')['messages']->info($log);
         } else {
             Base::$c->get('logger')->info($log);
@@ -203,7 +238,7 @@ trait BaseHelper
 
 
     /**
-     * Generic Error logger fn
+     * Generic Error logger fn, mutant method. overloads by environment
      * @param $log
      */
     public static function errorLog($log)
@@ -211,7 +246,7 @@ trait BaseHelper
         if (Base::$debugbar ?? false){
             Base::$debugbar['messages']->error($log);
         } else {
-            Base::$c->get('logger')->info($log);
+            Base::$c->get('logger')->error($log);
         }
     }
 
@@ -245,6 +280,9 @@ trait BaseHelper
 
 
     /**
+     * View render Template engine fn.
+     * renders a template with given data & globals in hive array
+     *
      * @param $template
      * @param array $data
      */
@@ -256,6 +294,13 @@ trait BaseHelper
         if (Base::$_data['project'] ?? true){
             Base::$_data['project'] = Base::$c['project'];
         }
+
+        $called = debug_backtrace()[1];
+
+        Base::$_data['module'] = array(
+            'method' => strtolower($called['function']),
+            'name' => strtolower(str_replace('App\Modules\\', '', $called['class']))
+        );
 
         // Avatar service: Gravatar
         if ($l = Base::get('login')){
@@ -275,6 +320,10 @@ trait BaseHelper
 
 
     /**
+     * Locale loader. relies on gettext
+     * po/mo files has to be placed in /i18n directory
+     *
+     * @return mixed
      */
     public static function setLocale()
     {
@@ -327,7 +376,11 @@ trait BaseHelper
 
 
     /**
+     * DB registration
+     * Manages db connections
+     * also sets up fs db via sqlite
      *
+     * @throws \DebugBar\DebugBarException
      */
     public static function registerDB()
     {
@@ -394,6 +447,18 @@ trait BaseHelper
             $twig->addExtension(new \Twig_Extension_Debug());
 
             $twig->addExtension(new \Twig_Extensions_Extension_I18n());
+
+            $profile = new \Twig_Profiler_Profile();
+
+            $twig->addExtension(new \Twig_Extension_Profiler($profile));
+
+            // $dumper = new \Twig_Profiler_Dumper_Html();
+
+            $dumper = new \Twig_Profiler_Dumper_Text();
+            // echo $dumper->dump($profile);
+
+            Base::$logger->info($dumper->dump($profile));
+
 
             // Instantiate and add Slim specific extension
             $twig->addExtension(new TwigExtension($c['router'],$c['request']->getUri()));
@@ -540,27 +605,50 @@ trait BaseHelper
     }
 
 
-    public static function errorHandler($errno, $errstr, $errfile, $errline)
+
+    public static function silentLogger($errno, $errstr, $errfile, $errline, $errcontext)
     {
         $errData = [
             'errno' => $errno,
             'error' => $errstr,
             'file' => $errfile.':'.$errline,
+            'context' => $errcontext,
             'stack' => debug_backtrace()
         ];
 
+        Base::$c->get('logger')->error($errData);
+
+        return true;
+    }
+
+    public static function errorHandler($errno, $errstr, $errfile, $errline, $errcontext)
+    {
+
+        $errData = [
+            'errno' => $errno,
+            'error' => $errstr,
+            'file' => $errfile.':'.$errline,
+            'context' => $errcontext,
+            'stack' => debug_backtrace()
+        ];
 
         Base::errorLog($errData);
+
+        $errorPage = new ErrorHandler(Base::$c);
+
+        $errorPage->display(Base::$c->get('request'), Base::$c->get('response'), new \Error($errstr, $errno));
 
         return true;
     }
 
 
-    public static function setErrorHandler()
+    public static function exceptionHandler($e)
     {
-        error_reporting(E_ALL);
-        ini_set('display_errors', false);
-        set_error_handler('App\Base::errorHandler');
+
+        $errorPage = new ErrorHandler(Base::$c);
+
+        Base::respond($errorPage->display(Base::$c->get('request'), Base::$c->get('response'), $e));
+
     }
 
 
@@ -568,14 +656,67 @@ trait BaseHelper
      * @param $e
      * @return bool
      */
-    public static function throw($e)
+    public static function discard($e)
     {
+        /* @var Exception|\ErrorException $e */
         if (Base::$cfg['debugMode'] ?? false){
+            $last = debug_backtrace()[1];
+            Base::errorLog('Exception in '.$last['file'].':'.$last['line'].' - '.$last['class'].$last['type'].$last['function']);
             Base::$debugbar['exceptions']->addException($e);
+        } else {
+            $last = debug_backtrace()[1];
+            Base::errorLog('Exception in '.$last['file'].':'.$last['line'].' - '.$last['class'].$last['type'].$last['function']);
+            Base::errorLog($e->getMessage());
         }
         return false;
     }
 
+
+    public static function respond(ResponseInterface $response)
+    {
+        // Send response
+        if (!headers_sent()) {
+            // Status
+            header(sprintf(
+                       'HTTP/%s %s %s',
+                       $response->getProtocolVersion(),
+                       $response->getStatusCode(),
+                       $response->getReasonPhrase()
+                   ));
+
+            // Headers
+            foreach ($response->getHeaders() as $name => $values) {
+                foreach ($values as $value) {
+                    header(sprintf('%s: %s', $name, $value), false);
+                }
+            }
+        }
+
+
+        $body = $response->getBody();
+        if ($body->isSeekable()) {
+            $body->rewind();
+        }
+        $chunkSize      = 1024*32;
+        $contentLength  = $response->getHeaderLine('Content-Length');
+        if (!$contentLength) {
+            $contentLength = $body->getSize();
+        }
+        $totalChunks    = ceil($contentLength / $chunkSize);
+        $lastChunkSize  = $contentLength % $chunkSize;
+        $currentChunk   = 0;
+        while (!$body->eof() && $currentChunk < $totalChunks) {
+            if (++$currentChunk == $totalChunks && $lastChunkSize > 0) {
+                $chunkSize = $lastChunkSize;
+            }
+            echo $body->read($chunkSize);
+            if (connection_status() != CONNECTION_NORMAL) {
+                break;
+            }
+        }
+
+        exit;
+    }
 
     /**
      * MariaDB/MySQL connection

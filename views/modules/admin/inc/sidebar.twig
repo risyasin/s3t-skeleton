@@ -6,11 +6,11 @@
             {#<li><a href="{{ path_for('admiin.pages') }}"><i class="fa fa-list"></i><span>{% trans 'CMS' %}</span></a></li>#}
 
             <li class="treeview">
-                <a href="{{ path_for('admin.pages') }}"><i class="fa fa-list"></i><span>{% trans 'Manage Content' %}</span>
+                <a href="{{ path_for('admin.pages', {"p":1}) }}"><i class="fa fa-list"></i><span>{% trans 'Manage Content' %}</span>
                         <i class="fa fa-angle-left pull-right"></i></a>
                 <ul class="treeview-menu">
-                    <li><a href="{{ path_for('admin.pages') }}">{% trans 'Site pages' %}</a></li>
-                    <li><a href="{{ path_for('admin.pages') }}">{% trans 'Create new page' %} <i class="fa fa-plus pull-right"></i></a></li>
+                    <li><a href="{{ path_for('admin.pages', {"p":1}) }}">{% trans 'Site pages' %}</a></li>
+                    <li><a href="{{ path_for('admin.page', {'id':'new'}) }}">{% trans 'Create new page' %} <i class="fa fa-plus pull-right"></i></a></li>
                     <li><a href="{{ path_for('admin.menus') }}">{% trans 'Site menus' %}</a></li>
                     <li><a href="{{ path_for('admin.templates') }}">{% trans 'Templates' %}</a></li>
                 </ul>

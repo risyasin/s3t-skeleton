@@ -10,6 +10,7 @@ namespace App\Models;
 
 
 use App\AbstractModel;
+use App\Tools;
 
 /**
  * Class Page
@@ -26,11 +27,31 @@ use App\AbstractModel;
  * @property string $template
  * @property string $data
  * @property string $description
+ *
+ * @property string $created redbean dt
+ * @property string $updated redbean dt
+ *
+ * @property \App\Models\Page $bean
+ *
  */
 
 
 class Page extends AbstractModel
 {
+
+    public function update()
+    {
+
+        if (empty($this->bean->path) || trim($this->bean->path) == ''){
+            $this->bean->path = $this->bean->title;
+        }
+
+        $this->bean->path = Tools::slugify($this->bean->path);
+
+        $this->bean->path = '/'.ltrim($this->bean->path, '/');
+
+    }
+
 
 
 }

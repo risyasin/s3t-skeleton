@@ -17,20 +17,27 @@ use RedBeanPHP\OODBBean;
  * Class AbstractModel
  * @package App
  *
- * @property \RedBeanPHP\OODBBean $bean Bean object
+ * @property \App\AbstractModel $bean
+ * @property string $created
+ * @property string $updated
  *
  * @method open
  * @method dispense
- * @method update
+ //* @method update
  * @method after_update
  * @method delete
  * @method after_delete
+ *
+ * @method import
+ * @method export
  *
  */
 
 
 class AbstractModel extends SimpleModel
 {
+
+    public $autoTime = true;
 
     /**
      * Tooling method.
@@ -44,18 +51,35 @@ class AbstractModel extends SimpleModel
     }
 
 
+    // FUSE methods
+
+    public function update()
+    {
+        if ($this->autoTime){
+            if(empty($this->bean->created)){
+                $this->bean->created = R::isoDateTime();
+            }
+            $this->bean->updated = R::isoDateTime();
+        }
+    }
+
+
     // non-dynamic methods. just wrap Redbean methods to save Model name //
 
 
     /**
+     * Dispense self.
+     *
      * @param int $num
      * @param bool $asArr
-     * @return array|OODBBean
+     * @return self
      */
     public static function create($num = 1, $asArr = false)
     {
-
-        return R::dispense(self::tableName(), $num, $asArr);
+        /* @var self $new */
+        $new = R::dispense(self::tableName(), $num, $asArr);
+        /* @var self $new */
+        return $new;
 
     }
 
@@ -70,10 +94,32 @@ class AbstractModel extends SimpleModel
         try {
             return R::store($bean);
         } catch(\Exception $e) {
-            return Base::throw($e);
+            return Base::discard($e);
         }
     }
 
+
+    public static function paginate($limit = 20, $page = 1, $sql = null, $bindings = [])
+    {
+        if (!is_numeric($page) || $page < 1){ $page = 1; }
+
+        $pd = (object) array(
+            'limit'     => $limit,
+            'page'      => $page,
+            'offset'    => (($page-1)*$limit),
+            'total'     => R::count(self::tableName(), $sql, $bindings),
+            'pageCount' => 1,
+            'rows'      => []
+        );
+
+        $pd->pageCount = ceil($pd->total/$limit);
+
+        $sql = (is_null($sql)?'':$sql).' LIMIT '.$pd->offset.', '.$pd->limit;
+
+        $pd->rows = R::findAll(self::tableName(), $sql, $bindings);
+
+        return $pd;
+    }
 
 
     /**
@@ -85,7 +131,7 @@ class AbstractModel extends SimpleModel
         try {
             return R::load(self::tableName(), $id);
         } catch(\Exception $e) {
-            return Base::throw($e);
+            return Base::discard($e);
         }
     }
 
@@ -98,7 +144,7 @@ class AbstractModel extends SimpleModel
         try {
             R::trash(self::tableName(), $id);
         } catch(\Exception $e) {
-            Base::throw($e);
+            Base::discard($e);
         }
     }
 
@@ -137,10 +183,9 @@ class AbstractModel extends SimpleModel
     public static function find($sql = null, $bindings = array())
     {
 
-        return R::findLike(self::tableName(), $sql, $bindings);
+        return R::find(self::tableName(), $sql, $bindings);
 
     }
-
 
 
     /**

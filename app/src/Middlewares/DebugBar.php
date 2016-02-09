@@ -10,25 +10,18 @@
 namespace App\Middlewares;
 
 
+use App\Base;
 use \GuzzleHttp\Psr7\LazyOpenStream;
+
 
 /**
  * Class DebugBar
- * @package App\Middlewares
+ * @package Ra\Sc\Middlewares
  */
 class DebugBar
 {
 
     const resourcePath = '/vendor/maximebf/debugbar/src/DebugBar/Resources';
-
-    public $container;
-
-    /* @var $logger \Monolog\Logger */
-    public $logger;
-
-    /* @var $debugbar \DebugBar\StandardDebugBar */
-    public $debugbar;
-
 
     /**
      * DebugBar Middleware constructor.
@@ -37,12 +30,6 @@ class DebugBar
     public function __construct($container)
     {
         /* @var $container \Slim\Container */
-        $this->container = $container;
-
-        $this->logger = $this->container->get('logger');
-
-        $this->debugbar = $this->container->get('debugbar');
-
     }
 
 
@@ -73,11 +60,12 @@ class DebugBar
         //$response->getBody()->write('BEFORE');
         $response = $next($request, $response);
 
+        Base::stateLog('Finishing output');
 
-        $appendHead = $this->debugbar->getJavascriptRenderer()->renderHead();
+        $appendHead = Base::$debugbar->getJavascriptRenderer()->renderHead();
         $response = $this->replaceContent($response, '</head>', $appendHead.'</head>');
 
-        $appendBody = $this->debugbar->getJavascriptRenderer()->render();
+        $appendBody = Base::$debugbar->getJavascriptRenderer()->render();
         $response = $this->replaceContent($response, '</body>', $appendBody.'</body>');
 
         return $response;
@@ -115,7 +103,7 @@ class DebugBar
 
         $ext = pathinfo($filePath, PATHINFO_EXTENSION);
 
-        // $this->logger->info('ext: '.$ext.' - '.$filePath);
+        // Base::$logger->info('ext: '.$ext.' - '.$filePath);
 
         if (array_key_exists($ext, $extMap)){
 

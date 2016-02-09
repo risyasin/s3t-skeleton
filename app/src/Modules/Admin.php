@@ -12,6 +12,7 @@ use App\Base;
 use App\AbstractModule;
 use App\DataSeed;
 use App\Models\User;
+use App\Models\Page;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -49,15 +50,26 @@ class Admin extends AbstractModule
 
 
             // GET /admin/pages
-            $app->get('/pages', function (){
+            $app->get('/pages/{p}', function ($req, $res, $args){
 
-                Base::log('test 3 - admin home');
-                Base::log(Base::get('login'));
+                $pages = Page::paginate(10, $args['p'], 'ORDER BY `path` ASC');
 
-
-                return Base::render('modules/admin/pages.twig');
+                return Base::render('modules/admin/pages.twig', compact('pages'));
 
             })->setName('admin.pages');
+
+            // GET /admin/page
+            $app->get('/page/{id}', function ($req, $resp, $args){
+
+                $page = 'new';
+
+                if ($args != 'new'){
+                    $page = Page::load($args['id']);
+                }
+
+                return Base::render('modules/admin/pageform.twig', compact('page'));
+
+            })->setName('admin.page');
 
             // GET /admin/menus
             $app->get('/menus', function (){

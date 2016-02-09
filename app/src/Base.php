@@ -27,6 +27,12 @@ class Base
     /* @var array $config */
     public static $cfg;
 
+    /* @var string $env Environment name */
+    public static $env = 'production';
+
+    /* @var string $dev Developer/Server name */
+    public static $dev = false;
+
     /* @var array $modules */
     public static $modules;
 
@@ -74,18 +80,36 @@ class Base
     public static function run()
     {
 
+        // sets environment / developer state
+        if (!empty($_SERVER['APP_ENV'])) {
+            Base::$env = $_SERVER['APP_ENV'];
+        }
+
+        if (!empty($_SERVER['APP_DEV'])){
+            Base::$dev = $_SERVER['APP_DEV'];
+        }
+
         Base::setupConfig();
 
         Base::$c = new Container(Base::$c);
 
-
         Base::registerMonolog();
 
         if (Base::$cfg['debugMode']){
+            error_reporting(E_ALL);
+            ini_set('display_errors', false);
             Base::registerDebugBar();
             Base::stateLog('App booting!');
-            Base::setErrorHandler();
+            set_error_handler('App\Base::errorHandler');
+            set_exception_handler('App\Base::exceptionHandler');
+
+        } else {
+            error_reporting(0);
+            ini_set('display_errors', false);
+            set_error_handler('App\Base::silentLogger');
         }
+
+        Base::stateLog('App dependencies');
 
         Base::setLocale();
 
@@ -95,11 +119,11 @@ class Base
 
         //Base::defaultActions();
 
-        Base::stateLog('Loading modules!');
+        Base::stateLog('Loading modules');
 
         Base::setupModules();
 
-        Base::stateLog('Loading Slim3!');
+        Base::stateLog('Loading Slim3');
 
         // Finally Run Slim3
         Base::$app = new Slim3(Base::$c);
@@ -111,7 +135,7 @@ class Base
 
         Base::$response = Base::$app->getContainer()->get('response');
 
-        Base::stateLog('PostApp state!');
+        Base::stateLog('PostApp state');
 
         Base::postApp();
 
@@ -123,11 +147,11 @@ class Base
             }
         }
 
-        Base::stateLog('Loading user routes!');
+        Base::stateLog('Loading user routes');
 
         include_once _DROOT.'/app/routes.php';
 
-        Base::stateLog('Loading module routes!');
+        Base::stateLog('Loading module routes');
 
         if (count(Base::$_mreg) > 0){
             foreach(Base::$_mreg as $n => $m) {
@@ -137,7 +161,7 @@ class Base
             }
         }
 
-        Base::stateLog('Slim 3 Run!');
+        Base::stateLog('Slim 3 Run');
 
         register_shutdown_function(function () {
             // @Todo: implement a proper shutdown to handle new exceptions.

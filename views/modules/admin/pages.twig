@@ -7,11 +7,10 @@
             <div class="col-xs-12">
                 <div class="box">
                     <div class="box-header">
-                        <h3 class="box-title">Responsive Hover Table</h3>
-
+                        <h3 class="box-title">{% trans 'Pages List' %}</h3>
                         <div class="box-tools">
                             <div class="input-group input-group-sm" style="width: 150px;">
-                                <input type="text" name="table_search" class="form-control pull-right" placeholder="Search">
+                                <input type="text" name="table_search" class="form-control pull-right" placeholder="{% trans 'Search' %}">
 
                                 <div class="input-group-btn">
                                     <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
@@ -24,50 +23,38 @@
                         <table class="table table-hover">
                             <tbody><tr>
                                 <th>ID</th>
-                                <th>User</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Reason</th>
+                                <th>{% trans 'Name' %}</th>
+                                <th>{% trans 'Path' %}</th>
+                                <th>{% trans 'Window Title' %}</th>
+                                <th>{% trans 'Status' %}</th>
+                                <th>{% trans 'Content' %}</th>
+                                <th>{% trans 'Date' %}</th>
                             </tr>
-                            <tr>
-                                <td>183</td>
-                                <td>John Doe</td>
-                                <td>11-7-2014</td>
-                                <td><span class="label label-success">Approved</span></td>
-                                <td>Bacon ipsum dolor sit amet salami venison chicken flank fatback doner.</td>
-                            </tr>
-                            <tr>
-                                <td>219</td>
-                                <td>Alexander Pierce</td>
-                                <td>11-7-2014</td>
-                                <td><span class="label label-warning">Pending</span></td>
-                                <td>Bacon ipsum dolor sit amet salami venison chicken flank fatback doner.</td>
-                            </tr>
-                            <tr>
-                                <td>657</td>
-                                <td>Bob Doe</td>
-                                <td>11-7-2014</td>
-                                <td><span class="label label-primary">Approved</span></td>
-                                <td>Bacon ipsum dolor sit amet salami venison chicken flank fatback doner.</td>
-                            </tr>
-                            <tr>
-                                <td>175</td>
-                                <td>Mike Doe</td>
-                                <td>11-7-2014</td>
-                                <td><span class="label label-danger">Denied</span></td>
-                                <td>Bacon ipsum dolor sit amet salami venison chicken flank fatback doner.</td>
-                            </tr>
+
+                            {% for page in pages.rows %}
+                                <tr>
+                                    <td>{{ page.id }}</td>
+                                    <td><a href="{{ path_for('admin.page', {'id':page.id}) }}">{{ page.name }}</a></td>
+                                    <td><a href="{{ page.path }}" target="_blank">{{ page.path }}</a></td>
+                                    <td>{{ page.title }}</td>
+                                    <td>
+                                        {% if page.status == 'y' %}
+                                            <span class="label label-success">Yes</span>
+                                        {% elseif page.status == 'p' %}
+                                            <span class="label label-warning">Pending</span>
+                                        {% else %}
+                                            <span class="label label-danger">No</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ page.content|striptags[0:100] }}</td>
+                                    <td>{{ update|date }}</td>
+                                </tr>
+                            {% endfor %}
                             </tbody></table>
                     </div>
                     <!-- /.box-body -->
                     <div class="box-footer clearfix">
-                        <ul class="pagination pagination-sm no-margin pull-right">
-                            <li><a href="#">«</a></li>
-                            <li><a href="#">1</a></li>
-                            <li><a href="#">2</a></li>
-                            <li><a href="#">3</a></li>
-                            <li><a href="#">»</a></li>
-                        </ul>
+                        <ul class="pagination pagination-sm no-margin pull-right" data-page-count="{{ pages.pageCount }}"></ul>
                     </div>
                 </div>
                 <!-- /.box -->
@@ -78,3 +65,25 @@
 
 
 {% endblock body %}
+
+{% block bodylast %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            var pgs = $('ul.pagination');
+            if (pgs.length > 0){
+                pgs.twbsPagination({
+                    totalPages: pgs.data('page-count'),
+                    visiblePages: 7,
+                    hrefVariable: '##',
+                    href: '{{ path_for('admin.pages',{'p':'##'}) }}'
+//                    onPageClick: function (e, page) {
+//
+//                        console.log('page', page);
+//                        //window.top.location.href = .replace('##',page);
+//                    }
+                });
+            }
+
+        });
+    </script>
+{% endblock %}

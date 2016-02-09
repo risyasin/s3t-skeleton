@@ -10,6 +10,7 @@ namespace App\Modules;
 
 use App\Base;
 use App\DataSeed;
+use App\Models\Activity;
 use App\Models\User;
 use App\AbstractModule;
 use Slim\Csrf\Guard;
@@ -100,6 +101,8 @@ class Auth extends AbstractModule
                                 'ts' => time(),
                                 'id' => (int) $user['id']
                             ];
+
+                            Activity::add('login', ['message' => $user['name'].' logged_in']);
 
                             unset($_SESSION['wrongpass']);
 

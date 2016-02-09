@@ -43,7 +43,6 @@ class ErrorHandler
         'text/html',
     ];
 
-
     /**
      * Constructor
      *
@@ -62,11 +61,11 @@ class ErrorHandler
      *
      * @param ServerRequestInterface $request   The most recent Request object
      * @param ResponseInterface      $response  The most recent Response object
-     * @param Exception              $exception The caught Exception object
+     * @param \Error|\Exception  $exception The caught Exception object
      *
      * @return ResponseInterface
      */
-    public function display(ServerRequestInterface $request, ResponseInterface $response, Exception $exception)
+    public function display(ServerRequestInterface $request, ResponseInterface $response, $exception)
     {
         $output = 'Unknown';
 
@@ -98,11 +97,12 @@ class ErrorHandler
     /**
      * Render HTML error page
      *
-     * @param  Exception $exception
+     * @param  \Error $exception
      * @return string
      */
-    protected function renderHtmlErrorMessage(Exception $exception)
+    protected function renderHtmlErrorMessage($exception)
     {
+
         $title = 'Application Error';
 
         if ($this->details) {
@@ -121,53 +121,44 @@ class ErrorHandler
         $appendHead = $this->dbjr->renderHead();
         $appendBody = $this->dbjr->render();
 
-        $output = sprintf(
-            "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'>" .
-            "<title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana," .
-            "sans-serif;}h1{margin:0;font-size:24px;font-weight:normal;line-height:30px;}strong{" .
-            "display:inline-block;width:65px;}</style>".
-            $appendHead.
-            "</head><body><h1>%s</h1>%s".
-            $appendBody
-            ."</body></html>",
-            $title,
-            $title,
-            $html
-        );
+        $style = 'body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:24px;font-weight:normal;line-height:30px;}strong{display:inline-block;width:65px;}';
 
-        return $output;
+        return '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">'.
+        '<title>'.$title.'</title><style>'.$style.'</style>'.$appendHead.
+        '</head><body><h1>'.$title.'</h1>'.$html.$appendBody.'</body></html>';
+
     }
 
     /**
      * Render exception as HTML.
      *
-     * @param Exception $exception
+     * @param \Error $exception
      *
      * @return string
      */
-    protected function renderHtmlException(Exception $exception)
+    protected function renderHtmlException($exception)
     {
-        $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
+        $html = '<div><strong>Type:</strong> '.get_class($exception).'</div>';
 
         if (($code = $exception->getCode())) {
-            $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
+            $html .= '<div><strong>Code:</strong> '.$code.'</div>';
         }
 
         if (($message = $exception->getMessage())) {
-            $html .= sprintf('<div><strong>Message:</strong> %s</div>', htmlentities($message));
+            $html .= '<div><strong>Message:</strong>'.htmlentities($message).'</div>';
         }
 
         if (($file = $exception->getFile())) {
-            $html .= sprintf('<div><strong>File:</strong> %s</div>', $file);
+            $html .= '<div><strong>File:</strong> '.$file.'</div>';
         }
 
         if (($line = $exception->getLine())) {
-            $html .= sprintf('<div><strong>Line:</strong> %s</div>', $line);
+            $html .= '<div><strong>Line:</strong> '.$line.'</div>';
         }
 
         if (($trace = $exception->getTraceAsString())) {
             $html .= '<h2>Trace</h2>';
-            $html .= sprintf('<pre>%s</pre>', htmlentities($trace));
+            $html .= '<pre>'.htmlentities($trace).'</pre>';
         }
 
         return $html;
@@ -176,10 +167,10 @@ class ErrorHandler
     /**
      * Render JSON error
      *
-     * @param  Exception $exception
+     * @param  \Error $exception
      * @return string
      */
-    protected function renderJsonErrorMessage(Exception $exception)
+    protected function renderJsonErrorMessage($exception)
     {
         $error = [
             'message' => 'Slim Application Error',
@@ -206,10 +197,10 @@ class ErrorHandler
     /**
      * Render XML error
      *
-     * @param  Exception $exception
+     * @param  \Error $exception
      * @return string
      */
-    protected function renderXmlErrorMessage(Exception $exception)
+    protected function renderXmlErrorMessage($exception)
     {
         $xml = "<error>\n  <message>Application Error</message>\n";
         if ($this->details) {

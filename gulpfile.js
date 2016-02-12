@@ -94,6 +94,7 @@ mods.admin.js = {
         'bower_components/SparkMD5/spark-md5.min.js',
         'bower_components/AdminLTE/plugins/iCheck/icheck.min.js',
         'bower_components/twbs-pagination/jquery.twbsPagination.min.js',
+        'bower_components/tinymce/tinymce.min.js',
         'bower_components/AdminLTE/dist/js/app.js'
     ],
     'dest': 'public/ui/modules/',

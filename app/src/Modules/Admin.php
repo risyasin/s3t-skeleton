@@ -36,14 +36,6 @@ class Admin extends AbstractModule
             // GET /admin/home
             $app->get('/home', function (){
 
-                Base::log('test 3 - admin home');
-
-                Base::set('server', $_SERVER);
-
-                Base::set('server', User::findAll());
-
-                DataSeed::defaultUser();
-
                 return Base::render('modules/admin/home.twig');
 
             })->setName('admin.home');
@@ -138,8 +130,6 @@ class Admin extends AbstractModule
         });
 
     }
-
-
 
 
 }

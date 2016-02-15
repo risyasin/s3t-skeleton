@@ -53,15 +53,16 @@ class Admin extends AbstractModule
             // GET /admin/page
             $app->get('/page/{id}', function ($req, $resp, $args){
 
-                $page = 'new';
-
-                if ($args != 'new'){
+                if ($args['id'] != 'new'){
                     $page = Page::load($args['id']);
+                } else {
+                    $page = Page::create();
                 }
 
                 return Base::render('modules/admin/pageform.twig', compact('page'));
 
             })->setName('admin.page');
+
 
             // GET /admin/menus
             $app->get('/menus', function (){

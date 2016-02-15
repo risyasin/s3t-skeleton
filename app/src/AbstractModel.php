@@ -122,6 +122,7 @@ class AbstractModel extends SimpleModel
     }
 
 
+
     /**
      * @param $id
      * @return OODBBean

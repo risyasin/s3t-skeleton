@@ -6,75 +6,57 @@
 
 {% block body %}
     <section class="content">
-        <div class="nav-tabs-custom">
-            <ul class="nav nav-tabs">
-                <li class="active"><a href="#basics" data-toggle="tab">{% trans 'Page Basics' %}</a></li>
-                <li><a href="#details" data-toggle="tab">{% trans 'Additional Details' %}</a></li>
-                <li><a href="#extras" data-toggle="tab">{% trans 'Modules / Extras' %}</a></li>
-            </ul>
-            <div class="tab-content">
-                <div class="active tab-pane" id="basics">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label for="inputName" class="col-sm-2 control-label"
-                                   data-toggle="tooltip" data-placement="right"
-                                   title="This field value will be used as internal name of page.<br>Visitors will not see this."
-                            >Page name</label>
-                            <div class="col-sm-10">
-                                <input type="email" class="form-control" id="inputName" placeholder="Name">
+        <form class="form-horizontal" action="" method="post">
+            <input type="hidden" name="id" value="{{ page.id }}">
+            <div class="nav-tabs-custom">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#basics" data-toggle="tab">{% trans 'Page Basics' %}</a></li>
+                    <li><a href="#details" data-toggle="tab">{% trans 'Additional Details' %}</a></li>
+                    <li><a href="#extras" data-toggle="tab">{% trans 'Modules / Extras' %}</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="active tab-pane" id="basics">
+                            <div class="form-group">
+                                <label for="name" class="col-sm-2 control-label">{% trans 'Page Name' %}</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="name" name="name" value="{{ page.name }}"
+                                           title="{% trans 'This field value will be used as internal name of page. Visitors will not see this.' %}"
+                                           data-toggle="tooltip" data-placement="right" placeholder="{% trans 'Page name' %}">
+                                </div>
+                                <div class="col-sm-4"><span class="pagepath">{{ page.path }}</span></div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="inputEmail" class="col-sm-2 control-label">Email</label>
+                            <div class="form-group">
+                                <label for="title" class="col-sm-2 control-label">{% trans 'Page Title' %}</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="title" class="form-control" id="title"
+                                           value="{{ page.title }}" placeholder="{% trans 'Page Title' %}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="page-content-area" class="hidden control-label">{% trans 'Page Content' %}</label>
+                                <div class="col-sm-12">
+                                    <textarea id="page-content-area">{{ page.content }}</textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-6">
+                                    <button type="button" class="btn btn-danger">{% trans 'Save Page' %}</button>
+                                    <button type="button" class="btn btn-warning">{% trans 'Save Draft' %}</button>
+                                </div>
 
-                            <div class="col-sm-10">
-                                <input type="email" class="form-control" id="inputEmail" placeholder="Email">
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="inputName" class="col-sm-2 control-label">Name</label>
 
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="inputName" placeholder="Name">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="inputExperience" class="col-sm-2 control-label">Experience</label>
+                    </div>
+                    <!-- /.tab-pane -->
+                    <div class="tab-pane" id="details">
 
-                            <div class="col-sm-10">
-                                <textarea class="form-control" id="inputExperience" placeholder="Experience"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="inputSkills" class="col-sm-2 control-label">Skills</label>
-
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="inputSkills" placeholder="Skills">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-12">
-                                <textarea id="page-content-area">
-                                    Sample html
-                                </textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-10">
-                                <button type="submit" class="btn btn-danger">Submit</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <!-- /.tab-pane -->
-                <div class="tab-pane" id="details">
-
-                </div>
-                <!-- /.tab-pane -->
-                <div class="tab-pane" id="extras">
+                    </div>
+                    <!-- /.tab-pane -->
+                    <div class="tab-pane" id="extras">
+                    </div>
                 </div>
             </div>
-        </div>
+        </form>
     </section>
 
 
@@ -84,14 +66,14 @@
     <script type="text/javascript">
         tinymce.init({
             selector: '#page-content-area',
-            height: 500,
+            height: 350,
             theme: 'modern',
             plugins: [
                 'advlist autolink lists link image charmap print preview hr anchor pagebreak',
                 'searchreplace wordcount visualblocks visualchars code fullscreen',
                 'insertdatetime media nonbreaking save table contextmenu directionality',
                 'emoticons template paste textcolor colorpicker textpattern imagetools'
-            ],
+            ]
         });
     </script>
 {% endblock %}

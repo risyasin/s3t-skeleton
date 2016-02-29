@@ -1,30 +1,45 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: yas
- * Date: 21/12/15
- * Time: 01:03
+ *
+ * PHP version 7
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  */
 
 namespace App;
 
+
+
+use Slim\Http\Request;
+use Slim\Http\Response;
 use Slim\Views\Twig;
 use Slim\Views\TwigExtension;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Slim\Handlers\Error as SlimError;
 use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
 use Monolog\Handler\StreamHandler;
+use Monolog\Handler\BrowserConsoleHandler;
 use DebugBar\StandardDebugBar;
 use DebugBar\DataCollector\ConfigCollector;
 use DebugBar\Bridge\Twig\TraceableTwigEnvironment;
 use DebugBar\Bridge\Twig\TwigCollector;
-//use DebugBar\DataCollector\ExceptionsCollector;
 use DebugBar\DataCollector\PDO\TraceablePDO;
 use DebugBar\DataCollector\PDO\PDOCollector;
 use RedBeanPHP\R as R;
 
 
+/**
+ * Class BaseHelper
+ * Base Helper Trait as the name suggests, holds the various tooling methods
+ * that would improper to place in Base itself. Refer to ZendOpcache documentation.
+ *
+ * @package App
+ */
 trait BaseHelper
 {
 
@@ -38,30 +53,34 @@ trait BaseHelper
      * Developer specific config can be set by env variable APP_DEV.
      * that merges Developer specific configuration eg: `app/config/yasin.php`
      *
+     * @return null
      */
-    private static function setupConfig()
+    final public static function setupConfig()
     {
 
         try {
             // Default config.
-            $config = require _DROOT.'/app/config/default.php';
+            $config = include_once _DROOT.'/app/config/default.php';
 
             // you can overwrite your setting by environment variable "APP_ENV".
             $envConfigFile = _DROOT.'/app/config/'.Base::$env.'.php';
-            if (is_file($envConfigFile) && is_readable($envConfigFile)){
-                $envConfig = require $envConfigFile;
-                if (is_array($envConfig)){ $config = array_replace_recursive($config, $envConfig); }
+            if (is_file($envConfigFile) && is_readable($envConfigFile)) {
+                $envConfig = include_once $envConfigFile;
+                if (is_array($envConfig)) {
+                    $config = array_replace_recursive($config, $envConfig);
+                }
             }
-
 
             // you can even add your own config,
             // in case of multiple developers/servers in different environments
             if (!empty(Base::$dev)) {
-                /* @var String $devConfigFile app/config/myname.php */
+                /* @var string $devConfigFile app/config/myname.php */
                 $devConfigFile = _DROOT.'/app/config/'.Base::$dev.'.php';
-                if (is_file($devConfigFile) && is_readable($devConfigFile)){
-                    $devConfig = require $devConfigFile;
-                    if (is_array($devConfig)){ $config = array_replace_recursive($config, $devConfig); }
+                if (is_file($devConfigFile) && is_readable($devConfigFile)) {
+                    $devConfig = include_once $devConfigFile;
+                    if (is_array($devConfig)) {
+                        $config = array_replace_recursive($config, $devConfig);
+                    }
                 }
             }
 
@@ -70,7 +89,7 @@ trait BaseHelper
 
             Base::$cfg = $config['settings'];
 
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             // Base::discard is not ready here. so using php error
             trigger_error('Unable to load config! Can not continue.', E_CORE_ERROR);
         }
@@ -78,26 +97,25 @@ trait BaseHelper
     }
 
 
-
     /**
-     * Module loader / Manager
-     * Loads modules that has register method defined
+     * Module loader / Manager Loads modules that has register method defined
      *
+     * @return null
      */
-    public static function setupModules()
+    final public static function setupModules()
     {
 
         $mods = Base::$cfg['modules'];
 
-        if (is_array($mods) && count($mods) > 0){
+        if (is_array($mods) && count($mods) > 0) {
             // modules
-            foreach($mods as $m) {
+            foreach ($mods as $m) {
 
-                $mp = Base::moduleNS.ucfirst($m);
+                $mp = Base::MODULE_NS.ucfirst($m);
 
-                if (is_callable([$mp, 'register'])){
+                if (is_callable([$mp, 'register'])) {
 
-                    Base::$_mreg[$m] = (object) [
+                    Base::$moduleRegistry[$m] = (object) [
                         'state' => null,
                         'methods' => get_class_methods($mp),
                         'instance' => false
@@ -106,27 +124,34 @@ trait BaseHelper
                     try {
 
                         // construct module
-                        Base::$_mreg[$m]->instance = new $mp(Base::$c, Base::$cfg);
+                        $nmi = new $mp(Base::$c, Base::$cfg);
+                        Base::$moduleRegistry[$m]->instance = $nmi;
 
-                        $missing = array_diff(Base::$_mreg[$m]->instance->requires, Base::$modules);
+                        $r = Base::$moduleRegistry[$m]->instance->requires ?? [];
+                        $missing = array_diff($r, Base::$modules);
 
-                        if(($key = array_search('session', $missing)) !== false) {
+                        if (($key = array_search('session', $missing)) !== false) {
                             session_start();
                             Base::$modules[] = 'session';
                             unset($missing[$key]);
                         }
 
-                        if (count(array_diff($missing, $mods)) > 0){
-                            throw new \ErrorException($m.' modules requires: '.implode(',', $missing));
+                        if (count(array_diff($missing, $mods)) > 0) {
+                            $em = $m.' modules requires: '.implode(',', $missing);
+                            throw new \ErrorException($em);
                         }
 
-                        Base::$_mreg[$m]->state = Base::$_mreg[$m]->instance->register();
+                        $regs = Base::$moduleRegistry[$m]->instance->register();
+                        Base::$moduleRegistry[$m]->state = $regs;
 
-                    } catch(\ErrorException $e) {
-                        Base::$logger->error('Unable to register module ('.$m.') via '.$mp.' '.$e->getMessage());
+                    } catch (\ErrorException $e) {
+                        $em = 'Unable to register module ('.$m.')';
+                        $em.= 'via '.$mp.' '.$e->getMessage();
+                        Base::$logger->error($em);
                     }
                 } else {
-                    Base::$logger->error('Module is missing or wrong ('.$m.') via '.$mp);
+                    $em = 'Module is missing or wrong ('.$m.') via '.$mp;
+                    Base::$logger->error($em);
                 }
             }
         }
@@ -137,77 +162,104 @@ trait BaseHelper
     /**
      * Base Hive setter
      *
-     * @param $key
-     * @param $val
+     * @param string $key Hive key
+     * @param string $val Hive value
+     *
      * @return mixed
      */
     public static function set($key, $val)
     {
-
-        Base::$_data[$key] = $val;
-
+        // check if it's an array or stdClass.
+        if (strpos($key, Tools::ARR_PATH_SEP) !== false) {
+            Tools::setByPath(Base::$hiveData, $key, $val);
+        } else {
+            Base::$hiveData[$key] = $val;
+        }
         return $val;
-
     }
 
 
     /**
      * Base Hive getter
      *
-     * @param $key
-     * @param null $default
+     * @param string $key     Hive key
+     * @param null   $default Default value
+     *
      * @return null
      */
     public static function get($key, $default = null)
     {
-
-        return Base::$_data[$key] ?? $default;
-
+        if (strpos($key, Tools::ARR_PATH_SEP) !== false) {
+            $val = Tools::getByPath(Base::$hiveData, $key);
+        } else {
+            if (!empty(Base::$hiveData[$key])) {
+                $val = Base::$hiveData[$key];
+            } else {
+                // fall back
+                $val = $default;
+            }
+        }
+        return $val;
     }
 
 
     /**
-     * Response as JSON
+     * Response JSON
      *
-     * @param $data
-     * @return int
+     * @param mixed $data Data to serialize
+     *
+     * @return null
      */
     public static function json($data)
     {
-        /* @var $r \Psr\Http\Message\ResponseInterface */
-        $r = Base::$c['response']->withHeader('Content-Type', 'application/json');
-        return $r->getBody()->write(json_encode($data));
+        /* @var \Slim\Http\Response $r */
+        $r = Base::$response->withHeader('Content-Type', 'application/json');
+
+        $r->getBody()->write(json_encode($data));
+
+        Base::respond($r);
+
     }
 
 
     /**
-     * Response redirect
+     * Redirect Response
      *
-     * @param $url
-     * @param int $code
-     * @return mixed
+     * @param string $route Target route name
+     * @param array  $args  Args if needed
+     * @param int    $code  HTTP code
+     *
+     * @return null
      */
-    public static function redirect($url, $code = 301)
+    public static function redirect($route, $args = [], $code = 301)
     {
-        Base::$c->get('logger')->info('redirecting to '.$url);
-        return Base::$c['response']->withStatus($code)->withHeader('Location', $url);
+
+        $url = Base::pathFor($route, $args);
+
+        $r = Base::$c['response']->withStatus($code)->withHeader('Location', $url);
+
+        Base::respond($r);
 
     }
 
 
     /**
      * State logging messages
-     * @param null $msg
+     *
+     * @param null $msg State message
+     *
+     * @return null
      */
     public static function stateLog($msg = null)
     {
 
-        if (Base::$debugbar){
+        if (Base::$debugbar) {
             /* @var \DebugBar\DataCollector\TimeDataCollector $tc */
             $tc = Base::$debugbar['time'];
 
-            if (Base::$currentState > 0 &&
-                $tc->hasStartedMeasure((string) Base::$currentState)) {
+            $csm = $tc->hasStartedMeasure((string) Base::$currentState);
+
+            if (Base::$currentState > 0 && $csm) {
                 $tc->stopMeasure((string) Base::$currentState);
             }
 
@@ -222,96 +274,234 @@ trait BaseHelper
     }
 
 
-
     /**
-     * Generic logger fn, mutant method. overloads by environment
-     * @param $log
+     * Generic logger fn, mutant method. overloaded by environment
+     *
+     * @param mixed $log Log subject
+     *
+     * @return null
      */
     public static function log($log)
     {
-        if (Base::$debugbar){
-            Base::$c->get('debugbar')['messages']->info($log);
-        } else {
-            Base::$c->get('logger')->info($log);
+        $logger = Base::$c->get('logger');
+        if (!empty(Base::$debugbar)) {
+            /* @var \DebugBar\DataCollector\MessagesCollector $logger */
+            $logger = Base::$c->get('debugbar')['messages'];
         }
+        $logger->info($log);
     }
 
 
     /**
      * Generic Error logger fn, mutant method. overloads by environment
-     * @param $log
+     *
+     * @param mixed $log Log subject
+     *
+     * @return null
      */
     public static function errorLog($log)
     {
-        if (Base::$debugbar ?? false){
-            Base::$debugbar['messages']->error($log);
-        } else {
-            Base::$c->get('logger')->error($log);
+        $logger = Base::$c->get('logger');
+        if (!empty(Base::$debugbar)) {
+            /* @var \DebugBar\DataCollector\MessagesCollector $logger */
+            $logger = Base::$c->get('debugbar')['messages'];
         }
+        $logger->error($log);
     }
 
 
     /**
-     * General cookie setter.
-     * @Todo: fix this when slim3 cookies starts to work again.
+     * Generic cookie setter.
      *
-     * @param $key
-     * @param $val
+     * @param string $key Cookie Key
+     * @param mixed  $val Value
+     *
+     * @return null
      */
     public static function setCookie($key, $val)
     {
-        // @TODO: improve here!
+        // @Todo: fix this when slim3 cookies starts to work again.
         //Base::$c->get('cookies')->set($key, [
         //    $key => $val,
         //    'expires' => '7 days'
         //]);
-        Base::$response = Base::$c['response']->withHeader('Set-Cookie', $key.'='. $val.'; Max-Age=43600; path=/; httponly');
+
+        $h = $key.'='. $val.'; Max-Age=43600; path=/; httponly';
+        $r = Base::$response->withHeader('Set-Cookie', $h);
+        Base::$response = $r;
     }
 
 
-    /**
-     * @param $pathName
-     * @return mixed
-     */
-    public static function pathFor($pathName)
-    {
-        return Base::$c->get('router')->pathFor($pathName);
-    }
 
 
     /**
-     * View render Template engine fn.
-     * renders a template with given data & globals in hive array
+     * Silent Logger, simply redirects all Exceptions & Errors to logger app.log.
      *
-     * @param $template
-     * @param array $data
+     * @param int    $errno Error no
+     * @param string $msg   Error message
+     * @param string $file  File path
+     * @param int    $line  Line
+     * @param mixed  $ctx   Context?
+     *
+     * @return bool
      */
-    public static function render($template, $data = [])
+    public static function silentLogger($errno, $msg, $file, $line, $ctx)
+    {
+        $errData = [
+            'errno'   => $errno,
+            'error'   => $msg,
+            'file'    => $file.':'.$line,
+            'context' => $ctx,
+            'stack'   => debug_backtrace()
+        ];
+
+        // Do not use Base::errorLog, this is a silent logger.
+        Base::$c->get('logger')->error($errData);
+
+        return true;
+    }
+
+
+
+    /**
+     * App error Handler setter
+     * Sets the default errorHandler of php
+     *
+     * @param int    $errno Error no
+     * @param string $msg   Error message
+     * @param string $file  File path
+     * @param int    $line  Line
+     * @param mixed  $ctx   Context?
+     *
+     * @return bool
+     */
+    final public static function errorHandler($errno, $msg, $file, $line, $ctx)
     {
 
+        $errData = [
+            'errno'   => $errno,
+            'error'   => $msg,
+            'file'    => $file.':'.$line,
+            'context' => $ctx,
+            'stack'   => debug_backtrace()
+        ];
+
+        Base::errorLog($errData);
+
+        // @TODO: Refactor here
+
+        return true;
+    }
+
+
+
+
+    /**
+     * Path for
+     *
+     * @param string $routeName Route name
+     * @param array  $args      Route arguments
+     *
+     * @return string
+     */
+    public static function pathFor($routeName, $args = [])
+    {
+        return Base::$c->get('router')->pathFor($routeName, $args);
+    }
+
+
+
+    /**
+     * Fixed Render Method.
+     * DO NOT PLAY with this unless you know what you are doing!
+     *
+     * @param string $template View name
+     * @param array  $data     Data array
+     *
+     * @return null
+     */
+    final public static function render($template, $data = [])
+    {
+
+        Base::stateLog('Rendering '.$template);
         // rendering defaults.
 
-        if (Base::$_data['project'] ?? true){
-            Base::$_data['project'] = Base::$c['project'];
+        if (empty(Base::$hiveData['project'])) {
+            Base::$hiveData['project'] = Base::$c['project'];
         }
 
-        $called = debug_backtrace()[1];
+        // Base::json(debug_backtrace()); exit;
 
-        Base::$_data['module'] = array(
-            'method' => strtolower($called['function']),
-            'name' => strtolower(str_replace('App\Modules\\', '', $called['class']))
-        );
+        foreach (debug_backtrace() as $k => $callItem) {
+            if ($callItem['class'] ?? false) {
+                // if it's a module or an action
+
+                $ta = substr($callItem['class'], 0, 10) == 'App\Action';
+                if ($callItem['class'] ?? false && $ta) {
+                    $calledAction = $callItem;
+                }
+
+                $tm = substr($callItem['class'], 0, 11) == 'App\Modules';
+                if ($callItem['class'] ?? false && $tm) {
+                    $calledModule = $callItem;
+                }
+
+            }
+        }
+
+        /*
+        if ($calledModule ?? false) {
+            // method of module, most likely a route fn
+            $method = strtolower($calledModule['function']);
+            // Class name of module, actually module name
+            $classPath = $calledModule['class'];
+            // Get rid of NS
+            $name = str_replace('App\\', '', $classPath);
+            // remove if it's already in Modules
+            $name = str_replace('Modules\\', '', $name);
+            // requirements of module
+            $requires = $calledModule['object']->requires ?? null;
+
+            /* @var \Slim\Http\Request $lastReq *//*
+            $lastReq = $calledModule['args'][0];
+
+
+            if ($lastReq instanceof Request) {
+                $route = $lastReq->getAttribute('route')->getName();
+            }
+
+            $args = $lastReq = $calledModule['args'][2];
+
+            $m = compact('name', 'method', 'route', 'classPath', 'requires', 'args');
+
+            Base::$hiveData['module'] = $m;
+
+            // Attach Module properties, if there are any.
+            // // NOTE: this can override the props above.
+            foreach ($calledModule['object']->module as $k => $v) {
+                Base::$hiveData['module'][$k] = $v;
+            }
+
+        } */
 
         // Avatar service: Gravatar
-        if ($l = Base::get('login')){
-            Base::$_data['avatar_url'] = 'https://gravatar.com/avatar/'.md5($l->mail);
+        if (Base::get('login')) {
+            Base::$hiveData['login'] = Session::get('login');
         }
 
         /* @var $twig \Twig_Environment */
         $twig = Base::$c->get('view')->getEnvironment();
 
-        foreach(Base::$_data as $k => $v) {
+        foreach (Base::$hiveData as $k => $v) {
             $twig->addGlobal($k, $v);
+        }
+
+        /* @var \Slim\Http\Response $lastResp */
+        //$lastResp = $called['args'][1];
+
+        // Fix Response from Abstract Response.
+        if ($lastResp instanceof Response  ?? false) {
+            Base::$response = $lastResp;
         }
 
         return Base::$c->get('view')->render(Base::$response, $template, $data);
@@ -327,10 +517,19 @@ trait BaseHelper
      */
     public static function setLocale()
     {
-        // sets the locale by browser language, may ignore language variant, before switching to fallback
+        // sets the locale by browser language,
+        // may ignore language variant, before switching to fallback
 
-        function setLang($locale) {
-            // Do not assign LC_ALL since the number notation varies between languages.
+        /**
+         * Inner fn to process
+         *
+         * @param string $locale Locale name
+         *
+         * @return bool
+         */
+        function setLang($locale)
+        {
+            // Do not assign LC_ALL since the number notation varies between them.
             // putenv('LC_ALL='.$locale.'.UTF-8');
             putenv('LC_MESSAGES='.$locale.'.UTF-8');
             setlocale(LC_MESSAGES, $locale.'.UTF-8');
@@ -342,29 +541,38 @@ trait BaseHelper
             return true;
         }
 
-        /* @var $r \Psr\Http\Message\ServerRequestInterface  */
-        $r = Base::$c['request'];
+        /* @var \Psr\Http\Message\ServerRequestInterface $r */
+        $r = Base::$c->get('request');
 
         $il = [];
         $cfg = Base::$c['settings']['locale'];
+
         $uln = explode(',', ($r->getServerParams()['HTTP_ACCEPT_LANGUAGE']??'en'));
 
-        foreach($cfg['available'] as $l) { $il[strtolower(substr($l, 0, 2))] = $l; }
+        foreach ($cfg['available'] as $l) {
+            $il[strtolower(substr($l, 0, 2))] = $l;
+        }
 
         // user preference,
         // just create a hostonly cookie with JS. then reload.
         if ($upl = $r->getCookieParams()[$cfg['switch']] ?? false) {
-           if (in_array($upl, array_keys($il))){
-               return setLang($il[$upl]);
-           }
+            if (in_array($upl, array_keys($il))) {
+                return setLang($il[$upl]);
+            }
         }
 
-        foreach($uln as $ln) {
+        foreach ($uln as $ln) {
             $ln = trim(str_replace('-', '_', $ln));
-            if (strpos($ln, ';')){ $ln = strstr($ln, ';', true); }
+            if (strpos($ln, ';')) {
+                $ln = strstr($ln, ';', true);
+            }
             // now lang should be 2 letters or 4 with variant
-            if (in_array($ln, $il)){ return setLang($ln); }
-            if (in_array($ln, array_keys($il))){ return setLang($il[$ln]); }
+            if (in_array($ln, $il)) {
+                return setLang($ln);
+            }
+            if (in_array($ln, array_keys($il))) {
+                return setLang($il[$ln]);
+            }
         }
 
         // fallback locale.
@@ -381,16 +589,18 @@ trait BaseHelper
      * also sets up fs db via sqlite
      *
      * @throws \DebugBar\DebugBarException
+     *
+     * @return null
      */
-    public static function registerDB()
+    final public static function registerDB()
     {
         // ignore if none provided
         if (Base::$cfg['db'] ?? false) {
 
-            if ($def = Base::$cfg['db']['default'] ?? false){
+            if ($def = Base::$cfg['db']['default'] ?? false) {
 
                 $type = 'App\Base::DB_'.$def['type'];
-                if (is_callable($type)){
+                if (is_callable($type)) {
                     Base::$c['db'] = call_user_func_array($type, [$def]);
                     // default key db
                     Base::$modules[] = 'db';
@@ -404,11 +614,11 @@ trait BaseHelper
             define('REDBEAN_MODEL_PREFIX', '\\App\\Models\\');
 
             // additional databases
-            if (count(Base::$cfg['db']) > 0){
+            if (count(Base::$cfg['db']) > 0) {
 
-                foreach(Base::$cfg['db'] as $k => $cfg) {
+                foreach (Base::$cfg['db'] as $k => $cfg) {
                     $type = 'App\Base::DB_'.$cfg['type'];
-                    if (is_callable($type)){
+                    if (is_callable($type)) {
                         call_user_func_array($type, [$cfg, $k]);
                         // register with key
                         Base::$modules[] = $k;
@@ -419,8 +629,9 @@ trait BaseHelper
             }
 
 
-            if (Base::$cfg['debugMode']){
-                $pdo = new TraceablePDO(R::getDatabaseAdapter()->getDatabase()->getPDO());
+            if (Base::$cfg['debugMode']) {
+                $pdo = R::getDatabaseAdapter()->getDatabase()->getPDO();
+                $pdo = new TraceablePDO($pdo);
                 Base::$debugbar->addCollector(new PDOCollector($pdo));
             }
 
@@ -429,12 +640,12 @@ trait BaseHelper
     }
 
 
-
-
     /**
+     * Setup & Register Twig
      *
+     * @return null
      */
-    public static function registerTwig()
+    final public static function registerTwig()
     {
 
         // Register Twig View helper
@@ -461,7 +672,8 @@ trait BaseHelper
 
 
             // Instantiate and add Slim specific extension
-            $twig->addExtension(new TwigExtension($c['router'],$c['request']->getUri()));
+            $ext = new TwigExtension($c['router'], $c['request']->getUri());
+            $twig->addExtension($ext);
 
             array_push(Base::$modules, 'templates', 'twig');
 
@@ -477,9 +689,12 @@ trait BaseHelper
 
 
     /**
+     * Setup & register Monolog.
+     * We love you Monolog!
      *
+     * @return null
      */
-    public static function registerMonolog()
+    final public static function registerMonolog()
     {
 
         $loggerConf = (object) Base::$cfg['monolog'];
@@ -490,199 +705,219 @@ trait BaseHelper
 
         $logger->pushHandler(new StreamHandler($loggerConf->path, Logger::DEBUG));
 
-        // monolog
-        Base::$c['logger'] = function ($c) use($logger) { return $logger; };
+        $logger->pushHandler(new BrowserConsoleHandler(Logger::INFO));
 
-        Base::$modules[] = 'monolog';
+        $logger->addInfo('Monolog started');
+
+        // monolog
+        Base::$c['logger'] = $logger;
 
         Base::$logger = $logger;
+
+        Base::$modules[] = 'monolog';
     }
 
 
     /**
+     * Setup & register Debugbar
      *
+     * @throws \DebugBar\DebugBarException
+     *
+     * @return null
      */
-    public static function registerDebugBar()
+    final public static function registerDebugBar()
     {
 
         $debugbar = new StandardDebugBar();
 
         $debugbar->addCollector(new ConfigCollector((array) Base::$cfg));
 
-        // $debugbar->addCollector(new ExceptionsCollector());
-
         // DebugBar
-        Base::$c['debugbar'] = function ($c) use($debugbar) {
-            /* @var $c \Slim\Container */
-            return $debugbar;
-        };
+        Base::$c['debugbar'] = $debugbar;
 
         Base::$debugbar = $debugbar;
 
     }
 
 
-
-
     /**
+     * PostApp state
      *
+     * @return null
      */
-    public static function postApp()
+    final public static function postApp()
     {
 
+        // Always active on dev, also can be turned on on prod
+        if (Base::$cfg['monologBrowser'] ?? Base::$env == 'development' ?? false) {
+            // Logger Browser console log
+            Base::$app->add(new Middlewares\Monolog(Base::$app->getContainer()));
+        }
+
         // Only debugMode
-        if (Base::$cfg['debugMode']) {
+        if (Base::$cfg['debugMode'] ?? false) {
 
-            // /* @var $debugbar \DebugBar\DebugBar */
-            // $debugbar = Base::$c->get('debugbar');
-            // PhpDebugBarMiddleware is not working sadly.
-            // $app->add(new PhpMiddleware\PhpDebugBar\PhpDebugBarMiddleware($container->get('debugbar')->getJavascriptRenderer()));
-            // @Todo: check if PhpMiddleware\PhpDebugBar\PhpDebugBarMiddleware is working?
-            Base::$app->add(new Middlewares\DebugBar(Base::$c));
+            if (Base::$cfg['debugBar'] ?? false) {
 
-            // custom error handler
-            Base::$c['errorHandler'] = function ($c) {
+                // /* @var $debugbar \DebugBar\DebugBar */
+                // $debugbar = Base::$c->get('debugbar');
+                // PhpDebugBarMiddleware is not working sadly.
+                // $pm =$container->get('debugbar')->getJavascriptRenderer())
+                // $app->add(new PhpDebugBarMiddleware($pm);
+                // @Todo: check if PhpDebugBarMiddleware is working?
 
-                /**
-                 * Custom Error Handler
-                 * @param $request ServerRequestInterface
-                 * @param $response ResponseInterface
-                 * @param $exception \ErrorException
-                 * @return \Slim\Http\Response
-                 */
-                return function ($request, $response, $exception) use ($c) {
-                    $handler = new ErrorHandler($c);
-                    return $handler->display($request, $response, $exception);
+                Base::$app->add(new Middlewares\DebugBar(Base::$c));
+
+            }
+
+            if (Base::$cfg['handleExceptions'] ?? false) {
+                // custom error handler
+                Base::$c['errorHandler'] = function ($c) {
+
+                    return function ($request, $response, $exception) use ($c) {
+                        $handler = new ErrorHandler($c);
+                        return $handler->display($request, $response, $exception);
+                    };
                 };
-            };
+            }
 
         }
 
         // postApp Hooks
 
-        Base::$app->get(Base::$cfg['locale']['dumpPath'], function () {
-            // Gettext can not read .twig files so we have to convert them to PHP files
-            // dumping all slugs in twig files into temp directory > _DROOT/tmp/i18n-cache/
-            return Base::json(['msg' => 'OK', 'list' => Base::dumpGettextStr()]);
-        });
 
+        // Gettext can not read .twig files
+        // so we have to convert them to PHP files
+        // dumping all slugs in twig files
+        // into temp directory > _DROOT/tmp/i18n-cache/
+
+        $dumper = '\App\Base::dumpGettextStr';
+        Base::$app->get(Base::$cfg['locale']['dumpPath'], $dumper);
 
     }
 
 
+
     /**
+     * Returns available Routes list for logged in User
+     *
+     * @return array
+     */
+    public static function getRouteList()
+    {
+        $list = [];
+
+        $routes = Base::$c->get('router')->getRoutes();
+
+        foreach ($routes as $k => $route) {
+            /* @var \Slim\Route $route */
+
+            $list[$k] = [
+                'name' => $route->getName(),
+                'module' => $route->getCallable(),
+                'path' => $route->getPattern(),
+                'method' => $route->getMethods(),
+                'args' => $route->getArguments()
+            ];
+        }
+
+        return $list;
+    }
+
+
+    /**
+     * Gettext slug dumper
+     *
      * @return array
      */
     public static function dumpGettextStr()
     {
         $list = [];
+
+        $uri = Base::$request->getUri();
+
         $tplDir = _DROOT.'/views';
-        $tmpDir = _DROOT.'/tmp/i18n-cache/';
+
         $loader = new \Twig_Loader_Filesystem($tplDir);
         // force auto-reload to always have the latest version of the template
-        $twig = new \Twig_Environment($loader, array(
-            'cache' => $tmpDir,
+        $cfg = [
+            'cache' => _DROOT.'/tmp/i18n-cache/',
             'auto_reload' => true
-        ));
+        ];
+
+        $twig = new \Twig_Environment($loader, $cfg);
+
         $twig->addExtension(new \Twig_Extension_Debug());
 
-        $twig->addExtension(new TwigExtension(Base::$c['router'], Base::$c['request']->getUri()));
+        $twig->addExtension(new TwigExtension(Base::$c['router'], $uri));
 
         $twig->addExtension(new \Twig_Extensions_Extension_I18n());
 
         $lf = \RecursiveIteratorIterator::LEAVES_ONLY;
-        $dirIt = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($tplDir), $lf);
-        foreach ($dirIt as $file)
-        {
+
+        $it = new \RecursiveDirectoryIterator($tplDir);
+
+        $lIt = new \RecursiveIteratorIterator($it, $lf);
+
+        foreach ($lIt as $file) {
             if ($file->isFile()) {
                 $list[] = str_replace($tplDir.'/', '', $file);
                 $twig->loadTemplate(str_replace($tplDir.'/', '', $file));
             }
         }
 
-        return $list;
-
-    }
-
-
-
-    public static function silentLogger($errno, $errstr, $errfile, $errline, $errcontext)
-    {
-        $errData = [
-            'errno' => $errno,
-            'error' => $errstr,
-            'file' => $errfile.':'.$errline,
-            'context' => $errcontext,
-            'stack' => debug_backtrace()
-        ];
-
-        Base::$c->get('logger')->error($errData);
-
-        return true;
-    }
-
-    public static function errorHandler($errno, $errstr, $errfile, $errline, $errcontext)
-    {
-
-        $errData = [
-            'errno' => $errno,
-            'error' => $errstr,
-            'file' => $errfile.':'.$errline,
-            'context' => $errcontext,
-            'stack' => debug_backtrace()
-        ];
-
-        Base::errorLog($errData);
-
-        $errorPage = new ErrorHandler(Base::$c);
-
-        $errorPage->display(Base::$c->get('request'), Base::$c->get('response'), new \Error($errstr, $errno));
-
-        return true;
-    }
-
-
-    public static function exceptionHandler($e)
-    {
-
-        $errorPage = new ErrorHandler(Base::$c);
-
-        Base::respond($errorPage->display(Base::$c->get('request'), Base::$c->get('response'), $e));
+        Base::json(['msg' => 'OK', 'list' => $list]);
 
     }
 
 
     /**
-     * @param $e
+     * Generic exception thrower
+     *
+     * @param \Exception|\ErrorException|\Error $e Error or Exception
+     *
      * @return bool
      */
     public static function discard($e)
     {
-        /* @var Exception|\ErrorException $e */
-        if (Base::$cfg['debugMode'] ?? false){
+        // @TODO: Refactor this!
+
+        if (Base::$cfg['debugMode'] ?? false) {
+
             $last = debug_backtrace()[1];
-            Base::errorLog('Exception in '.$last['file'].':'.$last['line'].' - '.$last['class'].$last['type'].$last['function']);
+
+            $ln = 'Exception in '.$last['file'].':'.$last['line'];
+            $ln.= ' - '.$last['class'].$last['type'].$last['function'];
+
+            Base::errorLog($ln);
+
             Base::$debugbar['exceptions']->addException($e);
-        } else {
-            $last = debug_backtrace()[1];
-            Base::errorLog('Exception in '.$last['file'].':'.$last['line'].' - '.$last['class'].$last['type'].$last['function']);
-            Base::errorLog($e->getMessage());
-        }
+
+        } // ? not sure if this is correct
+
         return false;
     }
 
 
-    public static function respond(ResponseInterface $response)
+    /**
+     * Sends PSR-7 Response to browser & exits.
+     * Cuts through Slim3 response logic. so use it wisely.
+     * Ripped off from Slim3
+     *
+     * @param \Slim\Http\Response $response Response
+     *
+     * @return null
+     */
+    final public static function respond(Response $response)
     {
         // Send response
         if (!headers_sent()) {
             // Status
-            header(sprintf(
-                       'HTTP/%s %s %s',
-                       $response->getProtocolVersion(),
-                       $response->getStatusCode(),
-                       $response->getReasonPhrase()
-                   ));
+            header(sprintf('HTTP/%s %s %s',
+                $response->getProtocolVersion(),
+                $response->getStatusCode(),
+                $response->getReasonPhrase()
+            ));
 
             // Headers
             foreach ($response->getHeaders() as $name => $values) {
@@ -728,7 +963,7 @@ trait BaseHelper
      */
     public static function DB_mysql($cfg, $dn = 'default')
     {
-        if ($dn == 'default'){
+        if ($dn == 'default') {
             R::setup('mysql:host='.$cfg['host'].';dbname='.$cfg['db'], $cfg['user'], $cfg['pass']);
             return R::getRedBean();
         } else {
@@ -747,7 +982,7 @@ trait BaseHelper
      */
     public static function DB_sqlite($cfg, $dn = 'default')
     {
-        if ($dn == 'default'){
+        if ($dn == 'default') {
             R::setup('sqlite:'.$cfg['path'], $cfg['user'], $cfg['pass']);
             return R::getRedBean();
         } else {
@@ -767,7 +1002,7 @@ trait BaseHelper
      */
     public static function DB_pgsql($cfg, $dn = 'default')
     {
-        if ($dn == 'default'){
+        if ($dn == 'default') {
             R::setup('pgsql:host='.$cfg['host'].';dbname='.$cfg['db'], $cfg['user'], $cfg['pass']);
             return R::getRedBean();
         } else {
@@ -775,7 +1010,4 @@ trait BaseHelper
             return true;
         }
     }
-
-
-
 }

@@ -11,6 +11,8 @@ if (!defined('_DROOT')){ exit(1); }
 return [
     'settings' => [
         'debugMode' => true,
+        'debugBar' => false,
+        'handleExceptions' => false,
         'displayErrorDetails' => true,
         'view' => [
             'twig' => [

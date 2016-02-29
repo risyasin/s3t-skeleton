@@ -31,6 +31,35 @@ use RedBeanPHP\OODBBean;
  * @method import
  * @method export
  *
+ *
+ * -- OODBBean Methods
+ *
+ * @method setBeanHelper
+ * @method getIterator
+ * @method importRow
+ * @method importFrom
+ * @method inject
+ * @method getID
+ * @method all
+ * @method alias
+ * @method getProperties
+ * @method getPropertiesAndType
+ * @method clearModifiers
+ * @method setProperty
+ * @method getMeta
+ * @method moveMeta
+ * @method setMeta
+ * @method copyMetaFrom
+ * @method fetchAs
+ * @method poly
+ * @method traverse
+ * @method isEmpty
+ * @method setAttr
+ * @method unsetAll
+ * @method isTainted
+ * @method hasChanged
+ * @method hasListChanged
+ *
  */
 
 

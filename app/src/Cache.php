@@ -19,7 +19,7 @@ class Cache
 
     const TTL = 3600;
 
-    const PREFIX = 'Sc_';
+    const PREFIX = 'Ev_';
 
     /**
      * Cache getter
@@ -97,5 +97,30 @@ class Cache
         return \apcu_clear_cache($type);
 
     }
+
+
+
+
+    /**
+     * Generic Cache Wrapper.
+     * Wraps only a callable.
+     *
+     * @param string $key
+     * @param callable $val
+     * @param int $ttl
+     * @return mixed
+     */
+    public static function via($key, $val, $ttl = 600)
+    {
+        $cached = self::get((string) $key);
+
+        if (!$cached) {
+            $cached = $val();
+            self::set((string) $key, $cached, $ttl);
+        }
+
+        return $cached;
+    }
+
 
 }

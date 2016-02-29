@@ -1,73 +1,80 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: yas
- * Date: 16/12/15
- * Time: 23:32
+ *
+ * PHP version 7
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  */
 
 namespace App;
 
-
 use Slim\App as Slim3;
 use Slim\Container;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
+
 
 /**
  * Class Manager
- * @package App
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  */
 
 class Base
 {
 
+    // Helper trait, All tooling stuff goes here!
     use BaseHelper;
 
-    /* @var array $config */
+    /* @var array $cfg Holds config */
     public static $cfg;
-
     /* @var string $env Environment name */
     public static $env = 'production';
-
     /* @var string $dev Developer/Server name */
     public static $dev = false;
-
     /* @var array $modules */
     public static $modules;
-
-    /* @var $logger \Monolog\Logger */
+    /* @var \Monolog\Logger $logger */
     public static $logger;
-
-    /* @var $debugbar \DebugBar\StandardDebugBar  */
+    /* @var \DebugBar\StandardDebugBar $debugbar */
     public static $debugbar = false;
-
-    /* @var $app \Slim\App */
+    /* @var \Slim\App $app */
     public static $app;
-
-    /* @var $container \Slim\Container */
+    /* @var \Slim\Container $container */
     public static $c;
-
-    /* @var $request ServerRequestInterface */
+    /* @var \Slim\Http\Request $request */
     public static $request;
-
-    /* @var $response ResponseInterface */
+    /* @var \Slim\Http\Response $response */
     public static $response;
-
-    /* @var $locale string Default en_US */
+    /* @var \Slim\Route $route */
+    public static $route;
+    /* @var array $routes Collects all routes by role in menu for logged in user */
+    public static $routes;
+    /* @var array $params */
+    public static $params;
+    /* @var \App\Models\User $user */
+    public static $user;
+    /* @var string $locale Default tr_TR */
     public static $locale = 'en_US';
-
+    /* @var int $currentState */
     public static $currentState = 0;
+    /* @var array $hiveData */
+    public static $hiveData = [];
+    /* @var array $moduleRegistry Module registry */
+    public static $moduleRegistry;
 
-    /* @var $data array */
-    public static $_data = [];
+    /* @const string Modules namespace */
+    const MODULE_NS = 'App\\Modules\\';
 
-    /* @var $_mreg array Module registry */
-    public static $_mreg;
-
-    /* @const string Modules' namespace */
-    const moduleNS = 'App\\Modules\\';
-
+    /* @const string Models namespace */
+    const MODEL_NS = 'App\\Models\\';
 
 
     /**
@@ -76,16 +83,18 @@ class Base
      * @throws \Exception
      * @throws \Slim\Exception\MethodNotAllowedException
      * @throws \Slim\Exception\NotFoundException
+     * @return null
      */
     public static function run()
     {
 
-        // sets environment / developer state
-        if (!empty($_SERVER['APP_ENV'])) {
+        // sets environment state
+        if ($_SERVER['APP_ENV'] ?? false) {
             Base::$env = $_SERVER['APP_ENV'];
         }
 
-        if (!empty($_SERVER['APP_DEV'])){
+        // sets developer state
+        if ($_SERVER['APP_DEV'] ?? false) {
             Base::$dev = $_SERVER['APP_DEV'];
         }
 
@@ -95,13 +104,13 @@ class Base
 
         Base::registerMonolog();
 
-        if (Base::$cfg['debugMode']){
+        if (Base::$cfg['debugMode'] ?? false) {
             error_reporting(E_ALL);
-            ini_set('display_errors', false);
+            ini_set('display_errors', true);
             Base::registerDebugBar();
             Base::stateLog('App booting!');
-            set_error_handler('App\Base::errorHandler');
-            set_exception_handler('App\Base::exceptionHandler');
+            //set_error_handler('App\Base::errorHandler');
+            //set_exception_handler('App\Base::exceptionHandler');
 
         } else {
             error_reporting(0);
@@ -135,13 +144,15 @@ class Base
 
         Base::$response = Base::$app->getContainer()->get('response');
 
+        Base::$params = Base::$app->getContainer()->get('request')->getParams();
+
         Base::stateLog('PostApp state');
 
         Base::postApp();
 
-        if (count(Base::$_mreg) > 0){
-            foreach(Base::$_mreg as $n => $m) {
-                if ($m->instance && in_array('postApp', $m->methods)){
+        if (count(Base::$moduleRegistry) > 0) {
+            foreach (Base::$moduleRegistry as $n => $m) {
+                if ($m->instance && in_array('postApp', $m->methods)) {
                     $m->instance->postApp(Base::$app, Base::$c);
                 }
             }
@@ -153,9 +164,9 @@ class Base
 
         Base::stateLog('Loading module routes');
 
-        if (count(Base::$_mreg) > 0){
-            foreach(Base::$_mreg as $n => $m) {
-                if ($m->instance && in_array('routes', $m->methods)){
+        if (count(Base::$moduleRegistry) > 0) {
+            foreach (Base::$moduleRegistry as $n => $m) {
+                if ($m->instance && in_array('routes', $m->methods)) {
                     $m->instance->routes(Base::$app);
                 }
             }
@@ -163,11 +174,13 @@ class Base
 
         Base::stateLog('Slim 3 Run');
 
-        register_shutdown_function(function () {
-            // @Todo: implement a proper shutdown to handle new exceptions.
-            // R::close();
-            // Base::stateLog('Shutting down!');
-        });
+        register_shutdown_function(
+            function () {
+                // @Todo: implement a proper shutdown to handle new exceptions.
+                // R::close();
+                // Base::stateLog('Shutting down!');
+            }
+        );
 
         Base::$app->run();
 

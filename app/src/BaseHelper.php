@@ -13,25 +13,12 @@
 
 namespace App;
 
-
-
-use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Views\Twig;
 use Slim\Views\TwigExtension;
-use Slim\Handlers\Error as SlimError;
-use Monolog\Logger;
-use Monolog\Processor\UidProcessor;
-use Monolog\Handler\StreamHandler;
-use Monolog\Handler\BrowserConsoleHandler;
-use DebugBar\StandardDebugBar;
-use DebugBar\DataCollector\ConfigCollector;
-use DebugBar\Bridge\Twig\TraceableTwigEnvironment;
-use DebugBar\Bridge\Twig\TwigCollector;
-use DebugBar\DataCollector\PDO\TraceablePDO;
-use DebugBar\DataCollector\PDO\PDOCollector;
 use RedBeanPHP\R as R;
-
+use Tracy\Debugger;
+use Tracy\Dumper;
 
 /**
  * Class BaseHelper
@@ -142,21 +129,147 @@ trait BaseHelper
                         }
 
                         $regs = Base::$moduleRegistry[$m]->instance->register();
+
                         Base::$moduleRegistry[$m]->state = $regs;
 
                     } catch (\ErrorException $e) {
                         $em = 'Unable to register module ('.$m.')';
                         $em.= 'via '.$mp.' '.$e->getMessage();
-                        Base::$logger->error($em);
+                        Base::log($em);
                     }
                 } else {
                     $em = 'Module is missing or wrong ('.$m.') via '.$mp;
-                    Base::$logger->error($em);
+                    Base::log($em);
                 }
             }
         }
 
     }
+
+
+
+
+
+    /**
+     * DB registration
+     * Manages db connections
+     * also sets up fs db via sqlite
+     *
+     * @return null
+     */
+    final public static function registerDB()
+    {
+        // ignore if none provided
+        if (Base::$cfg['db'] ?? false) {
+
+            if ($def = Base::$cfg['db']['default'] ?? false) {
+
+                $type = 'App\Base::dba'.ucfirst($def['type']);
+                if (is_callable($type)) {
+                    Base::$c['db'] = call_user_func_array($type, [$def]);
+                    // default key db
+                    Base::$modules[] = 'db';
+                }
+
+            }
+            // remove db config
+            unset(Base::$cfg['db']['default']);
+
+            // Redbean models
+            define('REDBEAN_MODEL_PREFIX', '\\App\\Models\\');
+
+            // additional databases
+            if (count(Base::$cfg['db']) > 0) {
+
+                foreach (Base::$cfg['db'] as $k => $cfg) {
+                    $type = 'App\Base::dba'.ucfirst($cfg['type']);
+                    if (is_callable($type)) {
+                        call_user_func_array($type, [$cfg, $k]);
+                        // register with key
+                        Base::$modules[] = $k;
+                    }
+                    unset(Base::$cfg['db'][$k]);
+                }
+
+            }
+
+            if (Base::$cfg['debugMode']) {
+                //$pdo = R::getDatabaseAdapter()->getDatabase()->getPDO();
+                //$pdo = new TraceablePDO($pdo);
+                //Base::$debugbar->addCollector(new PDOCollector($pdo));
+            }
+
+        }
+
+    }
+
+
+    /**
+     * Setup & Register Twig
+     *
+     * @return null
+     */
+    final public static function registerTwig()
+    {
+
+        // Register Twig View helper
+        Base::$c['view'] = function ($c) {
+
+            /* @var $c \Slim\Container */
+            $twigConf = (object) $c->get('settings')['view'];
+
+            $twig = new Twig($twigConf->templatePath, $twigConf->twig);
+
+            $twig->addExtension(new \Twig_Extensions_Extension_I18n());
+
+            //$profile = new \Twig_Profiler_Profile();
+            //$twig->addExtension(new \Twig_Extension_Profiler($profile));
+
+            // Instantiate and add Slim specific extension
+            $ext = new TwigExtension($c['router'], $c['request']->getUri());
+
+            $twig->addExtension($ext);
+
+            if (Base::$cfg['debugMode'] ?? false) {
+
+                $twig->addExtension(new \Twig_Extension_Debug());
+
+            }
+
+            array_push(Base::$modules, 'templates', 'twig');
+
+            return $twig;
+        };
+
+    }
+
+
+    /**
+     * Setup & register Debugger which is Tracy now. sexy!
+     *
+     * @return null
+     */
+    final public static function registerDebugger()
+    {
+
+        Debugger::enable(Debugger::DEVELOPMENT, _DROOT.'/tmp/logs');
+
+        Debugger::$showLocation = Dumper::LOCATION_SOURCE;
+
+        Debugger::$productionMode = false;
+
+        Debugger::$maxDepth = 2;
+
+        Debugger::$maxLen = 50;
+
+        Debugger::timer('Debugger loaded');
+
+        Debugger::barDump('Debugger log!');
+
+        Base::$c['tracy'] = true;
+
+    }
+
 
 
     /**
@@ -253,21 +366,11 @@ trait BaseHelper
     public static function stateLog($msg = null)
     {
 
-        if (Base::$debugbar) {
-            /* @var \DebugBar\DataCollector\TimeDataCollector $tc */
-            $tc = Base::$debugbar['time'];
+        if (Base::$cfg['debugMode'] ?? false) {
 
-            $csm = $tc->hasStartedMeasure((string) Base::$currentState);
+            $msg = $msg ?? 'No state message';
 
-            if (Base::$currentState > 0 && $csm) {
-                $tc->stopMeasure((string) Base::$currentState);
-            }
-
-            ++Base::$currentState;
-
-            $msg = $msg ?? 'State changed to '.Base::$currentState;
-
-            $tc->startMeasure((string) Base::$currentState, $msg);
+            Base::$timing[] = Debugger::timer($msg);
 
         }
 
@@ -275,7 +378,7 @@ trait BaseHelper
 
 
     /**
-     * Generic logger fn, mutant method. overloaded by environment
+     * Generic logger fn
      *
      * @param mixed $log Log subject
      *
@@ -283,30 +386,22 @@ trait BaseHelper
      */
     public static function log($log)
     {
-        $logger = Base::$c->get('logger');
-        if (!empty(Base::$debugbar)) {
-            /* @var \DebugBar\DataCollector\MessagesCollector $logger */
-            $logger = Base::$c->get('debugbar')['messages'];
-        }
-        $logger->info($log);
+        Debugger::log($log);
     }
 
 
+
+
     /**
-     * Generic Error logger fn, mutant method. overloads by environment
+     * Generic web console logger fn,
      *
      * @param mixed $log Log subject
      *
      * @return null
      */
-    public static function errorLog($log)
+    public static function clog($log)
     {
-        $logger = Base::$c->get('logger');
-        if (!empty(Base::$debugbar)) {
-            /* @var \DebugBar\DataCollector\MessagesCollector $logger */
-            $logger = Base::$c->get('debugbar')['messages'];
-        }
-        $logger->error($log);
+        Debugger::fireLog($log);
     }
 
 
@@ -355,9 +450,6 @@ trait BaseHelper
             'stack'   => debug_backtrace()
         ];
 
-        // Do not use Base::errorLog, this is a silent logger.
-        Base::$c->get('logger')->error($errData);
-
         return true;
     }
 
@@ -386,13 +478,12 @@ trait BaseHelper
             'stack'   => debug_backtrace()
         ];
 
-        Base::errorLog($errData);
+        Base::log($errData);
 
         // @TODO: Refactor here
 
         return true;
     }
-
 
 
 
@@ -432,22 +523,22 @@ trait BaseHelper
 
         // Base::json(debug_backtrace()); exit;
 
-        foreach (debug_backtrace() as $k => $callItem) {
-            if ($callItem['class'] ?? false) {
-                // if it's a module or an action
-
-                $ta = substr($callItem['class'], 0, 10) == 'App\Action';
-                if ($callItem['class'] ?? false && $ta) {
-                    $calledAction = $callItem;
-                }
-
-                $tm = substr($callItem['class'], 0, 11) == 'App\Modules';
-                if ($callItem['class'] ?? false && $tm) {
-                    $calledModule = $callItem;
-                }
-
-            }
-        }
+        //foreach (debug_backtrace() as $k => $callItem) {
+        //    if ($callItem['class'] ?? false) {
+        //        // if it's a module or an action
+        //
+        //        $ta = substr($callItem['class'], 0, 10) == 'App\Action';
+        //        if ($callItem['class'] ?? false && $ta) {
+        //            $calledAction = $callItem;
+        //        }
+        //
+        //        $tm = substr($callItem['class'], 0, 11) == 'App\Modules';
+        //        if ($callItem['class'] ?? false && $tm) {
+        //            $calledModule = $callItem;
+        //        }
+        //
+        //    }
+        //}
 
         /*
         if ($calledModule ?? false) {
@@ -500,9 +591,9 @@ trait BaseHelper
         //$lastResp = $called['args'][1];
 
         // Fix Response from Abstract Response.
-        if ($lastResp instanceof Response  ?? false) {
-            Base::$response = $lastResp;
-        }
+        //if ($lastResp instanceof Response  ?? false) {
+        //    Base::$response = $lastResp;
+        //}
 
         return Base::$c->get('view')->render(Base::$response, $template, $data);
 
@@ -583,160 +674,60 @@ trait BaseHelper
 
 
 
+
+
+
+
     /**
-     * DB registration
-     * Manages db connections
-     * also sets up fs db via sqlite
+     * Outputs a file.
      *
-     * @throws \DebugBar\DebugBarException
+     * @param string $filePath File path
      *
      * @return null
      */
-    final public static function registerDB()
+    public static function sendFile($filePath)
     {
-        // ignore if none provided
-        if (Base::$cfg['db'] ?? false) {
+        /* @var Response $r */
+        $r = Base::$c['response'];
 
-            if ($def = Base::$cfg['db']['default'] ?? false) {
+        $r->withHeader('Content-Type', Tools::getMimeType($filePath));
+        $r->getBody()->write(file_get_contents($filePath));
 
-                $type = 'App\Base::DB_'.$def['type'];
-                if (is_callable($type)) {
-                    Base::$c['db'] = call_user_func_array($type, [$def]);
-                    // default key db
-                    Base::$modules[] = 'db';
-                }
-
-            }
-            // remove db config
-            unset(Base::$cfg['db']['default']);
-
-            // Redbean models
-            define('REDBEAN_MODEL_PREFIX', '\\App\\Models\\');
-
-            // additional databases
-            if (count(Base::$cfg['db']) > 0) {
-
-                foreach (Base::$cfg['db'] as $k => $cfg) {
-                    $type = 'App\Base::DB_'.$cfg['type'];
-                    if (is_callable($type)) {
-                        call_user_func_array($type, [$cfg, $k]);
-                        // register with key
-                        Base::$modules[] = $k;
-                    }
-                    unset(Base::$cfg['db'][$k]);
-                }
-
-            }
+        Base::respond($r);
+    }
 
 
-            if (Base::$cfg['debugMode']) {
-                $pdo = R::getDatabaseAdapter()->getDatabase()->getPDO();
-                $pdo = new TraceablePDO($pdo);
-                Base::$debugbar->addCollector(new PDOCollector($pdo));
-            }
+    /**
+     * Generic Dumper
+     *
+     * @param mixed $data Var to dump
+     *
+     * @return null
+     */
+    public static function dump($data)
+    {
+        /* @var \Slim\Http\Response $r */
+        $r = Base::$c['response']->withHeader('X-Mod-Run', 'Base::dump');
 
+        $call = debug_backtrace(null, 1)[0];
+
+        $last = debug_backtrace(null, 2)[1];
+
+        Debugger::barDump($_SERVER, 'Server Vars');
+
+        Debugger::barDump($last, 'Previous Call');
+
+        if (function_exists('dump')) {
+            ob_start();  echo dump($data);  $content = ob_get_clean();
+        } else {
+            ob_start(); var_dump($data); $content = ob_get_clean();
         }
 
-    }
+        $view = Base::$c->get('view');
 
+        $view->render($r, 'modules/dump.twig', compact('content', 'call', 'last'));
 
-    /**
-     * Setup & Register Twig
-     *
-     * @return null
-     */
-    final public static function registerTwig()
-    {
-
-        // Register Twig View helper
-        Base::$c['view'] = function ($c) {
-            /* @var $c \Slim\Container */
-            $twigConf = (object) $c->get('settings')['view'];
-
-            $twig = new Twig($twigConf->templatePath, $twigConf->twig);
-
-            $twig->addExtension(new \Twig_Extension_Debug());
-
-            $twig->addExtension(new \Twig_Extensions_Extension_I18n());
-
-            $profile = new \Twig_Profiler_Profile();
-
-            $twig->addExtension(new \Twig_Extension_Profiler($profile));
-
-            // $dumper = new \Twig_Profiler_Dumper_Html();
-
-            $dumper = new \Twig_Profiler_Dumper_Text();
-            // echo $dumper->dump($profile);
-
-            Base::$logger->info($dumper->dump($profile));
-
-
-            // Instantiate and add Slim specific extension
-            $ext = new TwigExtension($c['router'], $c['request']->getUri());
-            $twig->addExtension($ext);
-
-            array_push(Base::$modules, 'templates', 'twig');
-
-            if (Base::$debugbar ?? false) {
-                $env = new TraceableTwigEnvironment($twig->getEnvironment());
-                Base::$debugbar->addCollector(new TwigCollector($env));
-            }
-
-            return $twig;
-        };
-
-    }
-
-
-    /**
-     * Setup & register Monolog.
-     * We love you Monolog!
-     *
-     * @return null
-     */
-    final public static function registerMonolog()
-    {
-
-        $loggerConf = (object) Base::$cfg['monolog'];
-
-        $logger = new Logger($loggerConf->name);
-
-        $logger->pushProcessor(new UidProcessor());
-
-        $logger->pushHandler(new StreamHandler($loggerConf->path, Logger::DEBUG));
-
-        $logger->pushHandler(new BrowserConsoleHandler(Logger::INFO));
-
-        $logger->addInfo('Monolog started');
-
-        // monolog
-        Base::$c['logger'] = $logger;
-
-        Base::$logger = $logger;
-
-        Base::$modules[] = 'monolog';
-    }
-
-
-    /**
-     * Setup & register Debugbar
-     *
-     * @throws \DebugBar\DebugBarException
-     *
-     * @return null
-     */
-    final public static function registerDebugBar()
-    {
-
-        $debugbar = new StandardDebugBar();
-
-        $debugbar->addCollector(new ConfigCollector((array) Base::$cfg));
-
-        // DebugBar
-        Base::$c['debugbar'] = $debugbar;
-
-        Base::$debugbar = $debugbar;
-
+        Base::respond($r);
     }
 
 
@@ -748,27 +739,10 @@ trait BaseHelper
     final public static function postApp()
     {
 
-        // Always active on dev, also can be turned on on prod
-        if (Base::$cfg['monologBrowser'] ?? Base::$env == 'development' ?? false) {
-            // Logger Browser console log
-            Base::$app->add(new Middlewares\Monolog(Base::$app->getContainer()));
-        }
-
         // Only debugMode
         if (Base::$cfg['debugMode'] ?? false) {
 
-            if (Base::$cfg['debugBar'] ?? false) {
-
-                // /* @var $debugbar \DebugBar\DebugBar */
-                // $debugbar = Base::$c->get('debugbar');
-                // PhpDebugBarMiddleware is not working sadly.
-                // $pm =$container->get('debugbar')->getJavascriptRenderer())
-                // $app->add(new PhpDebugBarMiddleware($pm);
-                // @Todo: check if PhpDebugBarMiddleware is working?
-
-                Base::$app->add(new Middlewares\DebugBar(Base::$c));
-
-            }
+            Base::$app->add(new Middlewares\Debugger(Base::$c));
 
             if (Base::$cfg['handleExceptions'] ?? false) {
                 // custom error handler
@@ -889,9 +863,7 @@ trait BaseHelper
             $ln = 'Exception in '.$last['file'].':'.$last['line'];
             $ln.= ' - '.$last['class'].$last['type'].$last['function'];
 
-            Base::errorLog($ln);
-
-            Base::$debugbar['exceptions']->addException($e);
+            Base::log($ln);
 
         } // ? not sure if this is correct
 
@@ -913,11 +885,14 @@ trait BaseHelper
         // Send response
         if (!headers_sent()) {
             // Status
-            header(sprintf('HTTP/%s %s %s',
-                $response->getProtocolVersion(),
-                $response->getStatusCode(),
-                $response->getReasonPhrase()
-            ));
+            header(
+                sprintf(
+                    'HTTP/%s %s %s',
+                    $response->getProtocolVersion(),
+                    $response->getStatusCode(),
+                    $response->getReasonPhrase()
+                )
+            );
 
             // Headers
             foreach ($response->getHeaders() as $name => $values) {
@@ -929,65 +904,96 @@ trait BaseHelper
 
 
         $body = $response->getBody();
+
         if ($body->isSeekable()) {
             $body->rewind();
         }
-        $chunkSize      = 1024*32;
-        $contentLength  = $response->getHeaderLine('Content-Length');
+
+        $chunkSize = 1024*32;
+        $contentLength = $response->getHeaderLine('Content-Length');
+
         if (!$contentLength) {
             $contentLength = $body->getSize();
         }
-        $totalChunks    = ceil($contentLength / $chunkSize);
-        $lastChunkSize  = $contentLength % $chunkSize;
-        $currentChunk   = 0;
+
+        $totalChunks = ceil($contentLength / $chunkSize);
+        $lastChunkSize = $contentLength % $chunkSize;
+        $currentChunk = 0;
+
         while (!$body->eof() && $currentChunk < $totalChunks) {
+
             if (++$currentChunk == $totalChunks && $lastChunkSize > 0) {
                 $chunkSize = $lastChunkSize;
             }
+
             echo $body->read($chunkSize);
+
             if (connection_status() != CONNECTION_NORMAL) {
                 break;
             }
         }
-
         exit;
     }
 
     /**
      * MariaDB/MySQL connection
      *
-     * @param $cfg
-     * @param string $dn
-     * @return bool|\RedBeanPHP\OODB
+     * @param array  $cfg Config
+     * @param string $dn  literal name
+     *
      * @throws \RedBeanPHP\RedException
+     *
+     * @return null
      */
-    public static function DB_mysql($cfg, $dn = 'default')
+    public static function dbaMysql($cfg, $dn = 'default')
     {
         if ($dn == 'default') {
-            R::setup('mysql:host='.$cfg['host'].';dbname='.$cfg['db'], $cfg['user'], $cfg['pass']);
-            return R::getRedBean();
+
+            R::setup(
+                'mysql:host='.$cfg['host'].';dbname='.$cfg['db'],
+                $cfg['user'],
+                $cfg['pass']
+            );
+
         } else {
-            R::addDatabase($dn, 'mysql:host='.$cfg['host'].';dbname='.$cfg['db'], $cfg['user'], $cfg['pass'], $cfg['freeze']);
-            return true;
+
+            R::addDatabase(
+                $dn,
+                'mysql:host='.$cfg['host'].';dbname='.$cfg['db'],
+                $cfg['user'],
+                $cfg['pass'],
+                $cfg['freeze']
+            );
+
         }
     }
 
     /**
      * SQLite connection
      *
-     * @param $cfg
-     * @param string $dn
-     * @return bool|\RedBeanPHP\OODB
+     * @param array  $cfg Config
+     * @param string $dn  Literal name
+     *
      * @throws \RedBeanPHP\RedException
+     *
+     * @return null
      */
-    public static function DB_sqlite($cfg, $dn = 'default')
+    public static function dbaSqlite($cfg, $dn = 'default')
     {
         if ($dn == 'default') {
+
             R::setup('sqlite:'.$cfg['path'], $cfg['user'], $cfg['pass']);
-            return R::getRedBean();
+
         } else {
-            R::addDatabase($dn, 'sqlite:'.$cfg['path'], $cfg['user'], $cfg['pass'], $cfg['freeze']);
-            return true;
+
+            R::addDatabase(
+                $dn,
+                'sqlite:'.$cfg['path'],
+                $cfg['user'],
+                $cfg['pass'],
+                $cfg['freeze']
+            );
+
         }
     }
 
@@ -995,19 +1001,33 @@ trait BaseHelper
     /**
      * PostgreSQL connection
      *
-     * @param $cfg
-     * @param string $dn
-     * @return bool|\RedBeanPHP\OODB
+     * @param array  $cfg Config arr
+     * @param string $dn  Literal name
+     *
      * @throws \RedBeanPHP\RedException
+     *
+     * @return null
      */
-    public static function DB_pgsql($cfg, $dn = 'default')
+    public static function dbaPgsql($cfg, $dn = 'default')
     {
         if ($dn == 'default') {
-            R::setup('pgsql:host='.$cfg['host'].';dbname='.$cfg['db'], $cfg['user'], $cfg['pass']);
-            return R::getRedBean();
+
+            R::setup(
+                'pgsql:host='.$cfg['host'].';dbname='.$cfg['db'],
+                $cfg['user'],
+                $cfg['pass']
+            );
+
         } else {
-            R::addDatabase($dn, 'pgsql:host='.$cfg['host'].';dbname='.$cfg['db'], $cfg['user'], $cfg['pass'], $cfg['freeze']);
-            return true;
+
+            R::addDatabase(
+                $dn,
+                'pgsql:host='.$cfg['host'].';dbname='.$cfg['db'],
+                $cfg['user'],
+                $cfg['pass'],
+                $cfg['freeze']
+            );
+
         }
     }
 }

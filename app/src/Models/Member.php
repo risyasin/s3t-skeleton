@@ -1,9 +1,14 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: yas
- * Date: 17/12/15
- * Time: 13:18
+ *
+ * PHP version 7
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  */
 
 namespace App\Models;
@@ -13,7 +18,11 @@ use App\AbstractModel;
 /**
  * Class Member
  *
- * @package App\Models
+ * @category Base
+ * @package  App\Models
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  *
  * @property int $id userId
  * @property string $user actually username

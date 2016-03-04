@@ -1,17 +1,23 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: yas
- * Date: 16/12/15
- * Time: 01:45
+ *
+ * PHP version 7
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  */
 
-if (!defined('_DROOT')){ exit(1); }
+if (!defined('_DROOT')) {
+    exit(1);
+}
 
 return [
     'settings' => [
         'debugMode' => true,
-        'debugBar' => false,
         'handleExceptions' => false,
         'displayErrorDetails' => true,
         'view' => [

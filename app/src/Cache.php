@@ -1,18 +1,26 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: yas
- * Date: 06/02/16
- * Time: 00:27
+ *
+ * PHP version 7
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  */
 
 namespace App;
 
-
 /**
  * Class Cache
  *
- * @package App
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  */
 class Cache
 {
@@ -24,7 +32,8 @@ class Cache
     /**
      * Cache getter
      *
-     * @param $key
+     * @param string $key Key
+     *
      * @return mixed
      */
     public static function get($key)
@@ -35,14 +44,17 @@ class Cache
     /**
      * Cache setter
      *
-     * @param $key
-     * @param $val
-     * @param null $ttl
+     * @param string $key Key
+     * @param string $val Value
+     * @param null   $ttl Time
+     *
      * @return mixed
      */
     public static function set($key, $val, $ttl = null)
     {
-        if (is_null($ttl)){ $ttl = self::TTL; }
+        if (is_null($ttl)) {
+            $ttl = self::TTL;
+        }
 
         return \apcu_store(self::PREFIX.$key, $val, $ttl);
 
@@ -51,8 +63,9 @@ class Cache
     /**
      * Cache check fn.
      *
-     * @param $key
-     * @return bool|\string[]
+     * @param string $key Key
+     *
+     * @return bool
      */
     public static function has($key)
     {
@@ -65,8 +78,9 @@ class Cache
     /**
      * Cache information
      *
-     * @param string $type
-     * @return array|bool
+     * @param string $type Cache info
+     *
+     * @return mixed
      */
     public static function info($type = 'user')
     {
@@ -76,8 +90,10 @@ class Cache
 
     /**
      * Delete a single cache object
-     * @param $key
-     * @return bool|\string[]
+     *
+     * @param string $key Key
+     *
+     * @return mixed
      */
     public static function delete($key)
     {
@@ -88,8 +104,9 @@ class Cache
     /**
      * Clears all cached entries
      *
-     * @param string $type
-     * @return bool
+     * @param string $type Cache type
+     *
+     * @return mixed
      */
     public static function clean($type = 'user')
     {
@@ -99,15 +116,14 @@ class Cache
     }
 
 
-
-
     /**
      * Generic Cache Wrapper.
      * Wraps only a callable.
      *
-     * @param string $key
-     * @param callable $val
-     * @param int $ttl
+     * @param string   $key Key
+     * @param callable $val Data Source / Closure
+     * @param integer  $ttl Time to live
+     *
      * @return mixed
      */
     public static function via($key, $val, $ttl = 600)

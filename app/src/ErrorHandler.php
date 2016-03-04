@@ -1,25 +1,35 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: yas
- * Date: 16/12/15
- * Time: 01:35
+ *
+ * PHP version 7
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  */
-
 namespace App;
 
-
 use Exception;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Slim\Http\Request;
+use Slim\Http\Response;
 use Slim\Http\Body;
 
-
 /**
- * Class ErrorHandler, shamelessly rip off of it's native.
- * to replace Slim's native ErrorHandler. also add's debugbar to error page
- * @package App
+ * Class ErrorHandler
+ * Shamelessly rip off of it's native.
+ * to replace Slim's native ErrorHandler.
+ * Also add's debugbar to error page
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  */
+
 class ErrorHandler
 {
 
@@ -44,45 +54,48 @@ class ErrorHandler
     ];
 
     /**
-     * Constructor
+     * ErrorHandler constructor.
      *
-     * @param $container \Slim\Container
+     * @param \Slim\Container $container DIC
      */
     public function __construct($container)
     {
 
         $this->dbjr = $container->get('debugbar')->getJavascriptRenderer();
+
         $this->details = (bool) $container->get('settings')['displayErrorDetails'];
 
     }
 
     /**
-     * display error
+     * Display error
      *
-     * @param ServerRequestInterface $request   The most recent Request object
-     * @param ResponseInterface      $response  The most recent Response object
-     * @param \Error|\Exception  $exception The caught Exception object
+     * @param Request    $request   The most recent Request object
+     * @param Response   $response  The most recent Response object
+     * @param \Exception $exception The caught Exception object
      *
-     * @return ResponseInterface
+     * @return Response
      */
-    public function display(ServerRequestInterface $request, ResponseInterface $response, $exception)
+    public function display(Request $request, Response $response, $exception)
     {
+
         $output = 'Unknown';
 
-        $contentType = $this->determineContentType($request);
+        $contentType = $this->_determineContentType($request);
+
         switch ($contentType) {
-            case 'application/json':
-                $output = $this->renderJsonErrorMessage($exception);
-                break;
+        case 'application/json':
+            $output = $this->renderJsonErrorMessage($exception);
+            break;
 
-            case 'text/xml':
-            case 'application/xml':
-                $output = $this->renderXmlErrorMessage($exception);
-                break;
+        case 'text/xml':
+        case 'application/xml':
+            $output = $this->renderXmlErrorMessage($exception);
+            break;
 
-            case 'text/html':
-                $output = $this->renderHtmlErrorMessage($exception);
-                break;
+        case 'text/html':
+            $output = $this->renderHtmlErrorMessage($exception);
+            break;
         }
 
         $body = new Body(fopen('php://temp', 'r+'));
@@ -97,7 +110,8 @@ class ErrorHandler
     /**
      * Render HTML error page
      *
-     * @param  \Error $exception
+     * @param \Exception $exception Exception
+     *
      * @return string
      */
     protected function renderHtmlErrorMessage($exception)
@@ -106,7 +120,8 @@ class ErrorHandler
         $title = 'Application Error';
 
         if ($this->details) {
-            $html = '<p>The application could not run because of the following error:</p>';
+            $html = '<p>The application could not run '.
+                'because of the following error:</p>';
             $html .= '<h2>Details</h2>';
             $html .= $this->renderHtmlException($exception);
 
@@ -115,24 +130,28 @@ class ErrorHandler
                 $html .= $this->renderHtmlException($exception);
             }
         } else {
-            $html = '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
+            $html = '<p>A website error has occurred. '.
+                'Sorry for the temporary inconvenience.</p>';
         }
 
-        $appendHead = $this->dbjr->renderHead();
-        $appendBody = $this->dbjr->render();
+        $appendHead = '';
+        $appendBody = '';
 
-        $style = 'body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:24px;font-weight:normal;line-height:30px;}strong{display:inline-block;width:65px;}';
+        $style = 'body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,'.
+            'Verdana,sans-serif;}h1{margin:0;font-size:24px;font-weight:normal;'.
+            'line-height:30px;}strong{display:inline-block;width:65px;}';
 
-        return '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">'.
-        '<title>'.$title.'</title><style>'.$style.'</style>'.$appendHead.
-        '</head><body><h1>'.$title.'</h1>'.$html.$appendBody.'</body></html>';
+        return '<html><head><meta http-equiv="Content-Type" content="text/html; '.
+        'charset=utf-8"><title>'.$title.'</title><style>'.$style.'</style>'.
+        $appendHead.'</head><body><h1>'.$title.'</h1>'.$html.$appendBody.
+        '</body></html>';
 
     }
 
     /**
      * Render exception as HTML.
      *
-     * @param \Error $exception
+     * @param \Exception $exception Error Exception
      *
      * @return string
      */
@@ -145,7 +164,8 @@ class ErrorHandler
         }
 
         if (($message = $exception->getMessage())) {
-            $html .= '<div><strong>Message:</strong>'.htmlentities($message).'</div>';
+            $html .= '<div><strong>Message:</strong>'.
+                htmlentities($message).'</div>';
         }
 
         if (($file = $exception->getFile())) {
@@ -167,7 +187,8 @@ class ErrorHandler
     /**
      * Render JSON error
      *
-     * @param  \Error $exception
+     * @param \Exception $exception Exception
+     *
      * @return string
      */
     protected function renderJsonErrorMessage($exception)
@@ -197,7 +218,8 @@ class ErrorHandler
     /**
      * Render XML error
      *
-     * @param  \Error $exception
+     * @param \Exception $exception Exception
+     *
      * @return string
      */
     protected function renderXmlErrorMessage($exception)
@@ -208,10 +230,14 @@ class ErrorHandler
                 $xml .= "  <exception>\n";
                 $xml .= "    <type>" . get_class($exception) . "</type>\n";
                 $xml .= "    <code>" . $exception->getCode() . "</code>\n";
-                $xml .= "    <message>" . $this->createCdataSection($exception->getMessage()) . "</message>\n";
+                $xml .= "    <message>" .
+                    $this->_createCdataSection($exception->getMessage()).
+                    "</message>\n";
                 $xml .= "    <file>" . $exception->getFile() . "</file>\n";
                 $xml .= "    <line>" . $exception->getLine() . "</line>\n";
-                $xml .= "    <trace>" . $this->createCdataSection($exception->getTraceAsString()) . "</trace>\n";
+                $xml .= "    <trace>" .
+                    $this->_createCdataSection($exception->getTraceAsString()).
+                    "</trace>\n";
                 $xml .= "  </exception>\n";
             } while ($exception = $exception->getPrevious());
         }
@@ -223,24 +249,31 @@ class ErrorHandler
     /**
      * Returns a CDATA section with the given content.
      *
-     * @param  string $content
+     * @param string $content CDATA content
+     *
      * @return string
      */
-    private function createCdataSection($content)
+    private function _createCdataSection($content)
     {
-        return sprintf('<![CDATA[%s]]>', str_replace(']]>', ']]]]><![CDATA[>', $content));
+        return sprintf(
+            '<![CDATA[%s]]>',
+            str_replace(']]>', ']]]]><![CDATA[>', $content)
+        );
     }
 
     /**
      * Determine which content type we know about is wanted using Accept header
      *
-     * @param ServerRequestInterface $request
+     * @param Request $request Request
+     *
      * @return string
      */
-    private function determineContentType(ServerRequestInterface $request)
+    private function _determineContentType(Request $request)
     {
         $acceptHeader = $request->getHeaderLine('Accept');
-        $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
+        $selectedContentTypes = array_intersect(
+            explode(',', $acceptHeader), $this->knownContentTypes
+        );
 
         if (count($selectedContentTypes)) {
             return $selectedContentTypes[0];

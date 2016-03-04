@@ -1,15 +1,31 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: yas
- * Date: 14/12/15
- * Time: 22:52
+ *
+ * PHP version 7
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  */
 
 namespace App;
 
+use Slim\Container;
 
-class AbstractModule
+/**
+ * Class AbstractModule
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
+ */
+
+abstract class AbstractModule
 {
 
     public $requires = [];
@@ -17,56 +33,29 @@ class AbstractModule
     /* @var $view \Slim\Views\Twig */
     protected $view;
 
-    /* @var $logger \Monolog\Logger */
-    protected $logger;
-
-    /* @var $debugbar \DebugBar\StandardDebugBar */
-    protected $debugbar;
-
     /* @var $data array */
     public $data;
 
 
-    public function __construct($c, $config)
+    /**
+     * AbstractModule constructor.
+     *
+     * @param Container $c   DI Container
+     * @param array     $cfg Config Array
+     */
+    public function __construct(Container $c, array $cfg)
     {
-
-        $this->view = Base::$c->get('view');
-        $this->logger = Base::$c->get('logger');
-        $this->debugbar = Base::$c->get('debugbar');
 
         Base::set('moduleName', get_called_class());
 
     }
 
-
-
-    public function log($log = null)
-    {
-        if ($this->debugbar){
-            /* @var $this->debugbar \DebugBar\StandardDebugBar */
-            $this->debugbar['messages']->error($log);
-        } else {
-            $this->logger->info($log);
-        }
-    }
-
-    public function errlog($log)
-    {
-        if ($this->debugbar){
-            /* @var $this->debugbar \DebugBar\StandardDebugBar */
-            $this->debugbar['messages']->error($log);
-        } else {
-            $this->logger->error($log);
-        }
-    }
-
-
     /**
+     * Abstract Module registerer
+     *
+     * @return mixed
      */
-    public function register()
-    {
-        return true;
-    }
+    abstract public function register();
 
 
 }

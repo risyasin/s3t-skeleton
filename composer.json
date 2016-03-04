@@ -25,9 +25,10 @@
     "monolog/monolog": "^1.17",
     "guzzlehttp/guzzle": "^6.1",
     "gabordemooij/redbean": "^4.3",
-    "phpmailer/phpmailer": "^5.2"
+    "phpmailer/phpmailer": "^5.2",
+    "tracy/tracy": "^2.3",
+    "fabpot/goutte": "^3.1"
   },
   "require-dev": {
-    "maximebf/debugbar": "dev-master"
   }
 }

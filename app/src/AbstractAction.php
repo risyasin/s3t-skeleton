@@ -1,59 +1,38 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: yas
- * Date: 14/12/15
- * Time: 22:52
+ *
+ * PHP version 7
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  */
 
 namespace App;
 
-
-class AbstractAction
+/**
+ * Class AbstractAction
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
+ */
+abstract class AbstractAction
 {
 
-    /* @var $view \Slim\Views\Twig */
-    protected $view;
-
-    /* @var $logger \Monolog\Logger */
-    protected $logger;
-
-    /* @var $debugbar \DebugBar\StandardDebugBar */
-    protected $debugbar;
-
-    /* @var $data array  */
-    public $data;
-
+    /**
+     * AbstractAction constructor.
+     */
     public function __construct()
     {
 
-        $this->view = Base::$c->get('view');
-        $this->logger = Base::$c->get('logger');
-        $this->debugbar = Base::$c->get('debugbar');
-
         Base::set('actionName', get_called_class());
 
-    }
-
-
-    public function log($log = null)
-    {
-        if ($this->debugbar){
-            /* @var $this->debugbar \DebugBar\StandardDebugBar */
-            $this->debugbar['messages']->error($log);
-        } else {
-            $this->logger->info($log);
-        }
-    }
-
-    public function errlog($log)
-    {
-        if ($this->debugbar){
-            /* @var $this->debugbar \DebugBar\StandardDebugBar */
-            $this->debugbar['messages']->error($log);
-        } else {
-            $this->logger->error($log);
-        }
     }
 
 }

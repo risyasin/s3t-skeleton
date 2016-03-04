@@ -1,9 +1,14 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: yas
- * Date: 12/01/16
- * Time: 00:30
+ *
+ * PHP version 7
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  */
 
 namespace App;
@@ -12,18 +17,34 @@ use App\Models\Page;
 use App\Models\User;
 use RedBeanPHP\R;
 
+/**
+ * Class DataSeed
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
+ */
 class DataSeed
 {
 
+    /**
+     * Adds default user
+     *
+     * @return bool
+     */
     public static function defaultUser()
     {
 
-        /* @var $r \Psr\Http\Message\ServerRequestInterface  */
+        /* @var \Slim\Http\Request $r */
         $r = Base::$c['request'];
 
-        if (User::count() > 0){
-            // default user can only be added when there is no valid user can be authenticated!
-            return Base::discard(new \Exception('Refusing to add default user. User table is not empty!'));
+        if (User::count() > 0) {
+            // default user can only be added
+            // when there is no valid user can be authenticated!
+            $msg = 'Refusing to add default user. User table is not empty!';
+            return Base::discard(new \Exception($msg));
         }
 
         /* @var \App\Models\User $defUser */
@@ -38,13 +59,20 @@ class DataSeed
 
         User::save($defUser);
 
-        // @Todo: Consider this to move somewhere else, as it's not a seeding functionality, when it's available.
+        // @Todo: Consider this to move somewhere else,
+        // as it's not a seeding functionality, when it's available.
         R::exec('ALTER TABLE `user` ADD UNIQUE INDEX (`mail`);');
         R::exec('ALTER TABLE `user` ADD UNIQUE INDEX (`user`);');
 
         return true;
     }
 
+
+    /**
+     * User list
+     *
+     * @return null
+     */
     public static function users()
     {
 
@@ -54,10 +82,15 @@ class DataSeed
     }
 
 
+    /**
+     * Adds default page
+     *
+     * @return bool|int|string
+     */
     public static function defaultPage()
     {
         // Page::wipe();
-        if (count(Page::find('WHERE `path` = "/"')) == 0){
+        if (count(Page::find('WHERE `path` = "/"')) == 0) {
 
             R::exec('ALTER TABLE `page` ADD UNIQUE INDEX (`path`);');
 
@@ -74,10 +107,10 @@ class DataSeed
             return Page::save($page);
 
         } else {
-            return Base::discard(new \Exception('Refusing to add default page! Page table already has a /default page.'));
+            $msg = 'Refusing to add default page! '.
+                'Page table already has a /default page.';
+            return Base::discard(new \Exception($msg));
         }
-
     }
-
 
 }

@@ -43,8 +43,6 @@ class Base
     public static $modules;
     /* @var \Monolog\Logger $logger */
     public static $logger;
-    /* @var \DebugBar\StandardDebugBar $debugbar */
-    public static $debugbar = false;
     /* @var \Slim\App $app */
     public static $app;
     /* @var \Slim\Container $container */
@@ -63,8 +61,8 @@ class Base
     public static $user;
     /* @var string $locale Default tr_TR */
     public static $locale = 'en_US';
-    /* @var int $currentState */
-    public static $currentState = 0;
+    /* @var array $timing */
+    public static $timing = [];
     /* @var array $hiveData */
     public static $hiveData = [];
     /* @var array $moduleRegistry Module registry */
@@ -83,6 +81,7 @@ class Base
      * @throws \Exception
      * @throws \Slim\Exception\MethodNotAllowedException
      * @throws \Slim\Exception\NotFoundException
+     *
      * @return null
      */
     public static function run()
@@ -102,23 +101,18 @@ class Base
 
         Base::$c = new Container(Base::$c);
 
-        Base::registerMonolog();
+        Base::registerDebugger();
 
         if (Base::$cfg['debugMode'] ?? false) {
             error_reporting(E_ALL);
             ini_set('display_errors', true);
-            Base::registerDebugBar();
-            Base::stateLog('App booting!');
             //set_error_handler('App\Base::errorHandler');
             //set_exception_handler('App\Base::exceptionHandler');
 
         } else {
             error_reporting(0);
             ini_set('display_errors', false);
-            set_error_handler('App\Base::silentLogger');
         }
-
-        Base::stateLog('App dependencies');
 
         Base::setLocale();
 
@@ -126,13 +120,7 @@ class Base
 
         Base::registerTwig();
 
-        //Base::defaultActions();
-
-        Base::stateLog('Loading modules');
-
         Base::setupModules();
-
-        Base::stateLog('Loading Slim3');
 
         // Finally Run Slim3
         Base::$app = new Slim3(Base::$c);
@@ -146,7 +134,15 @@ class Base
 
         Base::$params = Base::$app->getContainer()->get('request')->getParams();
 
-        Base::stateLog('PostApp state');
+        include_once _DROOT.'/app/routes.php';
+
+        if (count(Base::$moduleRegistry) > 0) {
+            foreach (Base::$moduleRegistry as $n => $m) {
+                if ($m->instance && in_array('routes', $m->methods)) {
+                    $m->instance->routes(Base::$app);
+                }
+            }
+        }
 
         Base::postApp();
 
@@ -157,22 +153,6 @@ class Base
                 }
             }
         }
-
-        Base::stateLog('Loading user routes');
-
-        include_once _DROOT.'/app/routes.php';
-
-        Base::stateLog('Loading module routes');
-
-        if (count(Base::$moduleRegistry) > 0) {
-            foreach (Base::$moduleRegistry as $n => $m) {
-                if ($m->instance && in_array('routes', $m->methods)) {
-                    $m->instance->routes(Base::$app);
-                }
-            }
-        }
-
-        Base::stateLog('Slim 3 Run');
 
         register_shutdown_function(
             function () {

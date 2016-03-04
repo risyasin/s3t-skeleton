@@ -1,13 +1,17 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: yas
- * Date: 13/01/16
- * Time: 12:54
+ *
+ * PHP version 7
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  */
 
 namespace App\Models;
-
 
 use App\AbstractModel;
 use App\Tools;
@@ -15,7 +19,11 @@ use App\Tools;
 /**
  * Class Page
  *
- * @package App\Models
+ * @category Base
+ * @package  App\Models
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  *
  * @property int $id
  * @property string $lang
@@ -32,17 +40,21 @@ use App\Tools;
  * @property string $updated redbean dt
  *
  * @property \App\Models\Page $bean
- *
  */
 
 
 class Page extends AbstractModel
 {
 
+    /**
+     * Fuse method for updates
+     *
+     * @return null
+     */
     public function update()
     {
 
-        if (empty($this->bean->path) || trim($this->bean->path) == ''){
+        if (empty($this->bean->path) || trim($this->bean->path) == '') {
             $this->bean->path = $this->bean->title;
         }
 

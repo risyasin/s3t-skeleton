@@ -1,21 +1,30 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: yas
- * Date: 17/12/15
- * Time: 13:17
+ *
+ * PHP version 7
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  */
 
 namespace App;
 
-
-use RedBeanPHP\R;
+use RedBeanPHP\R as R;
 use RedBeanPHP\SimpleModel;
 use RedBeanPHP\OODBBean;
 
 /**
  * Class AbstractModel
- * @package App
+ *
+ * @category Base
+ * @package  App
+ * @author   Yasin inat <risyasin@gmail.com>
+ * @license  Apache 2.0
+ * @link     https://www.evrima.net/slim3base
  *
  * @property \App\AbstractModel $bean
  * @property string $created
@@ -23,14 +32,12 @@ use RedBeanPHP\OODBBean;
  *
  * @method open
  * @method dispense
- //* @method update
  * @method after_update
  * @method delete
  * @method after_delete
  *
  * @method import
  * @method export
- *
  *
  * -- OODBBean Methods
  *
@@ -59,35 +66,45 @@ use RedBeanPHP\OODBBean;
  * @method isTainted
  * @method hasChanged
  * @method hasListChanged
- *
  */
-
-
-class AbstractModel extends SimpleModel
+abstract class AbstractModel extends SimpleModel
 {
 
+    /* @var int Pagination default row count */
+    const ROW_LIMIT = 20;
+
+    /* @var bool $autoTime Datetime records toggle */
     public $autoTime = true;
 
+
     /**
-     * Tooling method.
+     * Tooling method
+     *
      * @return string
      */
-    private static function tableName()
+    private static function _table()
     {
-        // @Todo: implement a prefix support. if it's really needed. via xdispense method.
+        // @Todo: implement a prefix support.
+        // if it's really needed. via xdispense method.
         $cls = explode('\\', strtolower(get_called_class()));
         return array_pop($cls);
     }
 
 
-    // FUSE methods
+    // ------------------  FUSE methods ------------------ //
 
+    /**
+     * FUSE Updater for dt fields.
+     *
+     * @return null
+     */
     public function update()
     {
-        if ($this->autoTime){
-            if(empty($this->bean->created)){
+        if ($this->autoTime) {
+            if (empty($this->bean->created)) {
                 $this->bean->created = R::isoDateTime();
             }
+
             $this->bean->updated = R::isoDateTime();
         }
     }
@@ -99,23 +116,25 @@ class AbstractModel extends SimpleModel
     /**
      * Dispense self.
      *
-     * @param int $num
-     * @param bool $asArr
+     * @param int  $num   How many
+     * @param bool $asArr As array ?
+     *
      * @return self
      */
     public static function create($num = 1, $asArr = false)
     {
         /* @var self $new */
-        $new = R::dispense(self::tableName(), $num, $asArr);
-        /* @var self $new */
+        $new = R::dispense(self::_table(), $num, $asArr);
         return $new;
 
     }
 
 
-
     /**
-     * @param $bean
+     * Save bean
+     *
+     * @param OODBBean|AbstractModel $bean Bean
+     *
      * @return int|string
      */
     public static function save($bean)
@@ -128,38 +147,58 @@ class AbstractModel extends SimpleModel
     }
 
 
-    public static function paginate($limit = 20, $page = 1, $sql = null, $bindings = [])
-    {
-        if (!is_numeric($page) || $page < 1){ $page = 1; }
+    /**
+     * Simple Pagination
+     *
+     * @param int   $limit Limit
+     * @param int   $page  Which page?
+     * @param null  $sql   Any Sql filter
+     * @param array $bind  Bindings
+     *
+     * @return object
+     */
+    public static function paginate(
+        $limit = self::ROW_LIMIT,
+        $page = 1,
+        $sql = null,
+        $bind = []
+    ) {
 
-        $pd = (object) array(
+        if (!is_numeric($page) || $page < 1) {
+            $page = 1;
+        }
+
+        $pd = (object) [
             'limit'     => $limit,
             'page'      => $page,
-            'offset'    => (($page-1)*$limit),
-            'total'     => R::count(self::tableName(), $sql, $bindings),
+            'offset'    => (($page-1) * $limit),
+            'total'     => R::count(self::_table(), $sql, $bind),
             'pageCount' => 1,
             'rows'      => []
-        );
+        ];
 
-        $pd->pageCount = ceil($pd->total/$limit);
+        $pd->pageCount = ceil($pd->total / $limit);
 
         $sql = (is_null($sql)?'':$sql).' LIMIT '.$pd->offset.', '.$pd->limit;
 
-        $pd->rows = R::findAll(self::tableName(), $sql, $bindings);
+        $pd->rows = R::findAll(self::_table(), $sql, $bind);
 
         return $pd;
     }
 
 
-
     /**
-     * @param $id
-     * @return OODBBean
+     * Loader by ID
+     *
+     * @param int $id ID to load
+     *
+     * @return bool|OODBBean
      */
     public static function load($id)
     {
+        // @TODO: Do not catch it here, just pass
         try {
-            return R::load(self::tableName(), $id);
+            return R::load(self::_table(), $id);
         } catch(\Exception $e) {
             return Base::discard($e);
         }
@@ -167,153 +206,188 @@ class AbstractModel extends SimpleModel
 
 
     /**
-     * @param $id
+     * Trash it
+     *
+     * @param int $id ID to delete
+     *
+     * @return null
      */
     public static function trash($id)
     {
+        // @TODO: Do not catch it here, just pass
         try {
-            R::trash(self::tableName(), $id);
+            R::trash(self::_table(), $id);
         } catch(\Exception $e) {
             Base::discard($e);
         }
     }
 
 
-
-
     /**
-     * @return boolean
+     * Wipe table
+     *
+     * @return bool
      */
     public static function wipe()
     {
 
-        return R::wipe(self::tableName());
+        return R::wipe(self::_table());
 
     }
 
 
-
     /**
-     * @param $sql
+     * Count rows
+     *
+     * @param string $sql SQL filter
+     *
      * @return int
      */
     public static function count($sql = null)
     {
 
-        return R::count(self::tableName(), $sql);
+        return R::count(self::_table(), $sql);
 
     }
 
 
     /**
-     * @param null $sql
-     * @param array $bindings
+     * Simple Rows Finder
+     *
+     * @param string $sql  SQL Filter
+     * @param array  $bind Bind params
+     *
      * @return array
      */
-    public static function find($sql = null, $bindings = array())
+    public static function find($sql = null, $bind = [])
     {
 
-        return R::find(self::tableName(), $sql, $bindings);
+        return R::find(self::_table(), $sql, $bind);
 
     }
 
 
     /**
-     * @param $sql
-     * @param $bindings
+     * Simple Row Finder
+     *
+     * @param string $sql  SQL Filter
+     * @param array  $bind Bindings
+     *
      * @return OODBBean
      */
-    public static function findOne($sql = null, $bindings = array())
+    public static function findOne($sql = null, $bind = [])
     {
 
-        return R::findOne(self::tableName(), $sql, $bindings);
+        return R::findOne(self::_table(), $sql, $bind);
 
     }
 
 
     /**
-     * @param $sql
-     * @param $bindings
+     * All Finder
+     *
+     * @param string $sql  SQL Filter
+     * @param array  $bind Bindings
+     *
      * @return array
      */
-    public static function findAll($sql = null, $bindings = array())
+    public static function findAll($sql = null, $bind = [])
     {
 
-        return R::findAll(self::tableName(), $sql, $bindings);
+        return R::findAll(self::_table(), $sql, $bind);
 
     }
 
 
     /**
-     * @param $sql
-     * @param $bindings
+     * RedBean Collection
+     *
+     * @param string $sql  SQL Filter
+     * @param array  $bind Bindings
+     *
      * @return \RedBeanPHP\BeanCollection
      */
-    public static function collection($sql = null, $bindings = array())
+    public static function collection($sql = null, $bind = [])
     {
 
-        return R::findCollection(self::tableName(), $sql, $bindings);
+        return R::findCollection(self::_table(), $sql, $bind);
 
     }
 
     /**
-     * @param $sql
-     * @param $bindings
+     * Finds & Exports, Regular rows
+     *
+     * @param string $sql  SQL Filter
+     * @param array  $bind Bindings
+     *
      * @return array
      */
-    public static function findAndExport($sql = null, $bindings = array())
+    public static function findAndExport($sql = null, $bind = [])
     {
 
-        return R::findAndExport(self::tableName(), $sql, $bindings);
+        return R::findAndExport(self::_table(), $sql, $bind);
 
     }
 
 
     /**
-     * @param $array
+     * Finds if exists or creates
+     *
+     * @param array $array Find Data
+     *
      * @return OODBBean
      */
     public static function findOrCreate($array)
     {
 
-        return R::findOrCreate(self::tableName(), $array);
+        return R::findOrCreate(self::_table(), $array);
 
     }
 
     /**
-     * @param array $like
-     * @param string $sql
+     * Find Like
+     *
+     * @param array  $like Similar data
+     * @param string $sql  SQL Filter
+     *
      * @return array
      */
-    public static function findLike($like = array(), $sql = '')
+    public static function findLike($like = [], $sql = '')
     {
 
-        return R::findLike(self::tableName(), $like, $sql);
+        return R::findLike(self::_table(), $like, $sql);
 
     }
 
     /**
-     * @param null $sql
-     * @param array $bindings
+     * Finds the last
+     *
+     * @param string $sql  SQL Filter
+     * @param array  $bind Bindings
+     *
      * @return OODBBean
      */
-    public static function findLast($sql = NULL, $bindings = array())
+    public static function findLast($sql = null, $bind = [])
     {
 
-        return R::findLast(self::tableName(), $sql, $bindings);
+        return R::findLast(self::_table(), $sql, $bind);
 
     }
 
     /**
-     * @param null $sql
-     * @param array $bindings
+     * Finds or Dispenses
+     *
+     * @param string $sql  SQL Filter
+     * @param array  $bind Bindings
+     *
      * @return array
      */
-    public function findOrDispense($sql = NULL, $bindings = array())
+    public function findOrDispense($sql = null, $bind = [])
     {
 
-        return R::findOrDispense(self::tableName(), $sql, $bindings);
+        return R::findOrDispense(self::_table(), $sql, $bind);
 
     }
+
 
 }

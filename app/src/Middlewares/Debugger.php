@@ -58,7 +58,6 @@ class Debugger
 
         $response = $next($request, $response);
 
-
         ob_start();
         //OutputDebugger::enable();
         \Tracy\Debugger::getBar()->render();

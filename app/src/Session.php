@@ -72,7 +72,7 @@ class Session
      */
     public static function get($name)
     {
-        return $_SESSION[$name];
+        return (!empty($_SESSION[$name])?$_SESSION[$name]:null);
     }
 
 

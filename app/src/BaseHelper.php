@@ -194,9 +194,7 @@ trait BaseHelper
             }
 
             if (Base::$cfg['debugMode']) {
-                //$pdo = R::getDatabaseAdapter()->getDatabase()->getPDO();
-                //$pdo = new TraceablePDO($pdo);
-                //Base::$debugbar->addCollector(new PDOCollector($pdo));
+                R::debug(true, 1);
             }
 
         }
@@ -222,9 +220,6 @@ trait BaseHelper
 
             $twig->addExtension(new \Twig_Extensions_Extension_I18n());
 
-            //$profile = new \Twig_Profiler_Profile();
-            //$twig->addExtension(new \Twig_Extension_Profiler($profile));
-
             // Instantiate and add Slim specific extension
             $ext = new TwigExtension($c['router'], $c['request']->getUri());
 
@@ -233,6 +228,12 @@ trait BaseHelper
             if (Base::$cfg['debugMode'] ?? false) {
 
                 $twig->addExtension(new \Twig_Extension_Debug());
+
+                Base::$c['twigProfiler'] = new \Twig_Profiler_Profile();
+
+                $profiler = new \Twig_Extension_Profiler(Base::$c['twigProfiler']);
+
+                $twig->addExtension($profiler);
 
             }
 
@@ -252,19 +253,24 @@ trait BaseHelper
     final public static function registerDebugger()
     {
 
-        Debugger::enable(Debugger::DEVELOPMENT, _DROOT.'/tmp/logs');
+        Debugger::enable(Debugger::DEVELOPMENT, _DROOT.'/tmp');
+
+        Debugger::$strictMode = true;
+
+        Debugger::$showBar = true;
 
         Debugger::$showLocation = Dumper::LOCATION_SOURCE;
 
         Debugger::$productionMode = false;
 
-        Debugger::$maxDepth = 2;
-
-        Debugger::$maxLen = 50;
-
         Debugger::timer('Debugger loaded');
 
         Debugger::barDump('Debugger log!');
+
+        $bar = Debugger::getBar();
+
+        $bar->addPanel(new QueryPanel());
+        $bar->addPanel(new TwigPanel());
 
         Base::$c['tracy'] = true;
 
@@ -378,6 +384,20 @@ trait BaseHelper
 
 
     /**
+     * Generic dumper fn
+     *
+     * @param mixed $var Dump subject
+     *
+     * @return null
+     */
+    public static function dump($var)
+    {
+        Debugger::barDump($var);
+    }
+
+
+
+    /**
      * Generic logger fn
      *
      * @param mixed $log Log subject
@@ -426,32 +446,6 @@ trait BaseHelper
         Base::$response = $r;
     }
 
-
-
-
-    /**
-     * Silent Logger, simply redirects all Exceptions & Errors to logger app.log.
-     *
-     * @param int    $errno Error no
-     * @param string $msg   Error message
-     * @param string $file  File path
-     * @param int    $line  Line
-     * @param mixed  $ctx   Context?
-     *
-     * @return bool
-     */
-    public static function silentLogger($errno, $msg, $file, $line, $ctx)
-    {
-        $errData = [
-            'errno'   => $errno,
-            'error'   => $msg,
-            'file'    => $file.':'.$line,
-            'context' => $ctx,
-            'stack'   => debug_backtrace()
-        ];
-
-        return true;
-    }
 
 
 
@@ -698,40 +692,6 @@ trait BaseHelper
 
 
     /**
-     * Generic Dumper
-     *
-     * @param mixed $data Var to dump
-     *
-     * @return null
-     */
-    public static function dump($data)
-    {
-        /* @var \Slim\Http\Response $r */
-        $r = Base::$c['response']->withHeader('X-Mod-Run', 'Base::dump');
-
-        $call = debug_backtrace(null, 1)[0];
-
-        $last = debug_backtrace(null, 2)[1];
-
-        Debugger::barDump($_SERVER, 'Server Vars');
-
-        Debugger::barDump($last, 'Previous Call');
-
-        if (function_exists('dump')) {
-            ob_start();  echo dump($data);  $content = ob_get_clean();
-        } else {
-            ob_start(); var_dump($data); $content = ob_get_clean();
-        }
-
-        $view = Base::$c->get('view');
-
-        $view->render($r, 'modules/dump.twig', compact('content', 'call', 'last'));
-
-        Base::respond($r);
-    }
-
-
-    /**
      * PostApp state
      *
      * @return null
@@ -860,8 +820,11 @@ trait BaseHelper
 
             $last = debug_backtrace()[1];
 
-            $ln = 'Exception in '.$last['file'].':'.$last['line'];
-            $ln.= ' - '.$last['class'].$last['type'].$last['function'];
+            $ln = [
+                $e->getMessage(),
+                'Exception in '.$last['file'].':'.$last['line'],
+                $last['class'].$last['type'].$last['function']
+            ];
 
             Base::log($ln);
 

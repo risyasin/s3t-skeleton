@@ -228,9 +228,7 @@ gulp.task('watch', ['css', 'js'], function () {
 });
 
 
-
-
-gulp.task('default', ['auth'], function () {
+gulp.task('dev', ['auth'], function () {
     bs.init({proxy: 'http://slim.dev'});
 
     var at = require('always-tail'),

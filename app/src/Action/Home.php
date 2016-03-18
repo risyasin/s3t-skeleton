@@ -51,8 +51,9 @@ final class Home extends AbstractAction
         $data['users'] = User::findAll('ORDER BY name ASC LIMIT 5');
         // $data['nusers'] = R::findAll( 'fblg_user', 'ORDER BY name ASC LIMIT 5');
 
-        DataSeed::defaultPage();
         // return Base::json($data);
+
+        Base::dump($_SERVER);
 
         return Base::render('web/default.twig', $data);
 

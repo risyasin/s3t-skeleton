@@ -10,7 +10,7 @@
  * @license  Apache 2.0
  * @link     https://www.evrima.net/slim3base
  */
-namespace App;
+namespace App\Utils;
 
 use Exception;
 use Slim\Http\Request;

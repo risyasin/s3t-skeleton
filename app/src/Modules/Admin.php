@@ -14,7 +14,7 @@
 namespace App\Modules;
 
 use App\Base;
-use App\AbstractModule;
+use App\Origins\Module as AbstractModule;
 use App\Models\Page;
 use Slim\Http\Request;
 use Slim\Http\Response;

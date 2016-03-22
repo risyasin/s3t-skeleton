@@ -11,7 +11,7 @@
  * @link     https://www.evrima.net/base3app
  */
 
-namespace App;
+namespace App\Utils\Debugger;
 
 use Tracy\IBarPanel;
 use RedBeanPHP\R as R;

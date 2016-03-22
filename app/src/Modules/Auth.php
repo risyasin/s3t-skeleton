@@ -13,12 +13,13 @@
 
 namespace App\Modules;
 
+
 use App\Base;
-use App\DataSeed;
+use App\Utils\Seeder\Json as DataSeed;
 use App\Models\Activity;
 use App\Models\User;
-use App\AbstractModule;
-use App\Session;
+use App\Origins\Module as AbstractModule;
+use App\Utils\Session;
 use Slim\App;
 use Slim\Csrf\Guard;
 use Slim\Http\Request;
@@ -193,19 +194,11 @@ class Auth extends AbstractModule
                         Session::delete('login');
                         Session::delete('user');
 
-                        return Base::redirect(Base::pathFor('auth.login'));
+                        return Base::redirect('auth.login');
 
                     }
                 )->setName('auth.logout');
 
-
-            }
-        )->add(
-            function (Request $req, Response $resp, $next) {
-
-                $response = $next($req, $resp);
-
-                return $response;
             }
         );
 

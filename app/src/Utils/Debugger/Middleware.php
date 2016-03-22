@@ -11,12 +11,10 @@
  * @link     https://www.evrima.net/slim3base
  */
 
-namespace App\Middlewares;
+namespace App\Utils\Debugger;
 
-use App\Base;
 use Slim\Http\Request;
 use Slim\Http\Response;
-use RedBeanPHP\R as R;
 
 /**
  * Class Debugger
@@ -28,7 +26,7 @@ use RedBeanPHP\R as R;
  * @license  Apache 2.0
  * @link     https://www.evrima.net/slim3base
  */
-class Debugger
+class Middleware
 {
 
     /**

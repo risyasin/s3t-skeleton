@@ -11,23 +11,39 @@
  * @link     https://www.evrima.net/slim3base
  */
 
-namespace App;
+namespace App\Utils\CacheDrivers;
+
+use App\Utils\CacheInterface;
 
 /**
  * Class Cache
  *
  * @category Base
- * @package  App
+ * @package  App\Utils
  * @author   Yasin inat <risyasin@gmail.com>
  * @license  Apache 2.0
  * @link     https://www.evrima.net/slim3base
  */
-class Cache
+class Apc implements CacheInterface
 {
 
-    const TTL = 3600;
 
-    const PREFIX = 'Ev_';
+    /**
+     * Cache init
+     *
+     * @throws \Exception
+     * @return bool
+     */
+    public static function init()
+    {
+
+        if (!function_exists('apcu_fetch')) {
+            throw new \Exception('APCu extension is not available!');
+        }
+
+        return true;
+    }
+
 
     /**
      * Cache getter
@@ -36,7 +52,7 @@ class Cache
      *
      * @return mixed
      */
-    public static function get($key)
+    public static function get(string $key)
     {
         return \apcu_fetch(self::PREFIX.$key);
     }
@@ -46,11 +62,11 @@ class Cache
      *
      * @param string $key Key
      * @param string $val Value
-     * @param null   $ttl Time
+     * @param int    $ttl Time
      *
      * @return mixed
      */
-    public static function set($key, $val, $ttl = null)
+    public static function set(string $key, $val, int $ttl = null)
     {
         if (is_null($ttl)) {
             $ttl = self::TTL;
@@ -67,7 +83,7 @@ class Cache
      *
      * @return bool
      */
-    public static function has($key)
+    public static function has(string $key)
     {
 
         return \apcu_exists(self::PREFIX.$key);
@@ -82,7 +98,7 @@ class Cache
      *
      * @return mixed
      */
-    public static function info($type = 'user')
+    public static function info(string $type = 'user')
     {
         return \apcu_cache_info($type);
     }
@@ -95,7 +111,7 @@ class Cache
      *
      * @return mixed
      */
-    public static function delete($key)
+    public static function delete(string $key)
     {
         return \apcu_delete(self::PREFIX.$key);
     }
@@ -126,7 +142,7 @@ class Cache
      *
      * @return mixed
      */
-    public static function via($key, $val, $ttl = 600)
+    public static function via(string $key, callable $val, int $ttl = 600)
     {
         $cached = self::get((string) $key);
 

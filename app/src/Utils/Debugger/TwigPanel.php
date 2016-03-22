@@ -11,8 +11,9 @@
  * @link     https://www.evrima.net/slim3base
  */
 
-namespace App;
+namespace App\Utils\Debugger;
 
+use App\Base;
 use Tracy\IBarPanel;
 
 /**
@@ -62,25 +63,44 @@ class TwigPanel implements IBarPanel
     public function getPanel()
     {
 
-        $dumper = new \Twig_Profiler_Dumper_Text();
-        $report = explode("\n", $dumper->dump(Base::$c['twigProfiler']));
+        try {
+            $twp = Base::$c['twigProfiler'];
+        } catch(\Exception $e) {
+            $twp = false;
+        }
 
-        ob_start(); ?><div class="nette-inner">
-        <ul style="margin: 0 5px; list-style-type: none;"><?php
-        $vp = Base::$c['settings']['view']['templatePath'];
-        foreach ($report as $ln) {
-            if (strstr($ln, '.twig')) {
-                list($f, $c) = explode('.twig', $ln);
-                $fn = trim(str_replace('└', '', $f)).'.twig';
-                $f = str_replace(' ', '&nbsp;', $f).'.twig';
-                $url = 'editor://open/?file='.$vp.'/'.$fn.'&line=1';
-                $ln = '<a href="'.$url.'">'.$f.'</a>'.$c;
-            }
-            echo '<li>'.$ln.'</li>';
-        } ?></ul></div><?php
-        $var = ob_get_clean();
+        if ($twp ?? false) {
 
-        return '<h3>Twig templates</h3>'.$var;
+            $dumper = new \Twig_Profiler_Dumper_Text();
+
+            $report = explode("\n", $dumper->dump($twp));
+
+            ob_start(); ?><div class="nette-inner">
+            <ul style="margin: 0 5px; list-style-type: none;"><?php
+
+                $vp = Base::$c['settings']['view']['templatePath'];
+
+            foreach ($report as $ln) {
+                if (strstr($ln, '.twig')) {
+                    list($f, $c) = explode('.twig', $ln);
+                    $fn = trim(str_replace('└', '', $f)).'.twig';
+                    $f = str_replace(' ', '&nbsp;', $f).'.twig';
+                    $url = 'editor://open/?file='.$vp.'/'.$fn.'&line=1';
+                    $ln = '<a href="'.$url.'">'.$f.'</a>'.$c;
+                }
+                echo '<li>'.$ln.'</li>';
+            } ?></ul></div><?php
+
+            $var = ob_get_clean();
+
+            return '<h3>Twig templates</h3>'.$var;
+
+        } else {
+            return 'No Twig template used!';
+        }
+
     }
+
+
 
 }

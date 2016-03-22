@@ -14,9 +14,9 @@
 namespace App\Action;
 
 use App\Base;
-use App\AbstractAction;
-use App\DataSeed;
+use App\Origins\Action as AbstractAction;
 use App\Models\User as User;
+use App\Utils\Cache;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -53,7 +53,15 @@ final class Home extends AbstractAction
 
         // return Base::json($data);
 
-        Base::dump($_SERVER);
+        Cache::set('srv', $_SERVER);
+
+        Cache::delete('last');
+        $data['cl'] = Cache::via(
+            'last',
+            function () {
+                return time();
+            }
+        );
 
         return Base::render('web/default.twig', $data);
 

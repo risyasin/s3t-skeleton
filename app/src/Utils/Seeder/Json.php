@@ -11,8 +11,9 @@
  * @link     https://www.evrima.net/slim3base
  */
 
-namespace App;
+namespace App\Utils\Seeder;
 
+use App\Base;
 use App\Models\Page;
 use App\Models\User;
 use RedBeanPHP\R;
@@ -26,7 +27,7 @@ use RedBeanPHP\R;
  * @license  Apache 2.0
  * @link     https://www.evrima.net/slim3base
  */
-class DataSeed
+class Json
 {
 
     /**

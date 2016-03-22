@@ -14,6 +14,7 @@
 namespace App;
 
 
+use App\Utils\Cache;
 use RedBeanPHP\OODBBean;
 use RedBeanPHP\R;
 use Goutte\Client as MyClient;

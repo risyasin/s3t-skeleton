@@ -13,7 +13,7 @@
 
 namespace App\Models;
 
-use App\AbstractModel;
+use App\Origins\Model as AbstractModel;
 
 /**
  * Class Member

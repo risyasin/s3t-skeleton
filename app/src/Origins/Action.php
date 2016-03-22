@@ -11,10 +11,12 @@
  * @link     https://www.evrima.net/slim3base
  */
 
-namespace App;
+namespace App\Origins;
+
+use App\Base;
 
 /**
- * Class AbstractAction
+ * Class Abstract Action
  *
  * @category Base
  * @package  App
@@ -22,7 +24,7 @@ namespace App;
  * @license  Apache 2.0
  * @link     https://www.evrima.net/slim3base
  */
-abstract class AbstractAction
+abstract class Action
 {
 
     /**

@@ -26,7 +26,8 @@
     "guzzlehttp/guzzle": "^6.1",
     "gabordemooij/redbean": "^4.3",
     "phpmailer/phpmailer": "^5.2",
-    "fabpot/goutte": "^3.1"
+    "fabpot/goutte": "^3.1",
+    "mobiledetect/mobiledetectlib": "^2.8"
   },
   "require-dev": {
     "tracy/tracy": "^2.3"

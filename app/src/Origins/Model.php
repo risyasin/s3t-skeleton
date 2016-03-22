@@ -11,14 +11,15 @@
  * @link     https://www.evrima.net/slim3base
  */
 
-namespace App;
+namespace App\Origins;
+
 
 use RedBeanPHP\R as R;
 use RedBeanPHP\SimpleModel;
 use RedBeanPHP\OODBBean;
 
 /**
- * Class AbstractModel
+ * Class Origin Model
  *
  * @category Base
  * @package  App
@@ -26,7 +27,7 @@ use RedBeanPHP\OODBBean;
  * @license  Apache 2.0
  * @link     https://www.evrima.net/slim3base
  *
- * @property \App\AbstractModel $bean
+ * @property \App\Origins\Model $bean
  * @property string $created
  * @property string $updated
  *
@@ -67,7 +68,7 @@ use RedBeanPHP\OODBBean;
  * @method hasChanged
  * @method hasListChanged
  */
-abstract class AbstractModel extends SimpleModel
+abstract class Model extends SimpleModel
 {
 
     /* @var int Pagination default row count */

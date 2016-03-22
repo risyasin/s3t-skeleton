@@ -11,7 +11,7 @@
  * @link     https://www.evrima.net/slim3base
  */
 
-namespace App;
+namespace App\Utils;
 
 
 /**

@@ -11,12 +11,13 @@
  * @link     https://www.evrima.net/slim3base
  */
 
-namespace App;
+namespace App\Origins;
 
+use App\Base;
 use Slim\Container;
 
 /**
- * Class AbstractModule
+ * Class Origin Module
  *
  * @category Base
  * @package  App
@@ -25,7 +26,7 @@ use Slim\Container;
  * @link     https://www.evrima.net/slim3base
  */
 
-abstract class AbstractModule
+abstract class Module
 {
 
     public $requires = [];

@@ -13,6 +13,7 @@
 
 namespace App;
 
+use App\Utils\Session;
 use Slim\Http\Response;
 use Slim\Views\Twig;
 use Slim\Views\TwigExtension;
@@ -269,8 +270,9 @@ trait BaseHelper
 
         $bar = Debugger::getBar();
 
-        $bar->addPanel(new QueryPanel());
-        $bar->addPanel(new TwigPanel());
+        $bar->addPanel(new Utils\Debugger\QueryPanel());
+
+        $bar->addPanel(new Utils\Debugger\TwigPanel());
 
         Base::$c['tracy'] = true;
 
@@ -362,6 +364,45 @@ trait BaseHelper
     }
 
 
+
+    /**
+     * Dump Response
+     *
+     * @param mixed $data Dump object
+     *
+     * @return null
+     */
+    public static function dump($data)
+    {
+        /* @var \Slim\Http\Response $r */
+        $r = Base::$c['response']->withHeader('X-Dumper', 'Base::dump');
+
+        $rdata = [];
+
+        $rdata['call'] = debug_backtrace(null, 1)[0];
+
+        $rdata['last'] = debug_backtrace(null, 2)[1];
+
+        Debugger::barDump($_SERVER, 'Server Vars');
+
+        Debugger::barDump($rdata['last'], 'Previous Call');
+
+        if (function_exists('dump')) {
+            ob_start();
+            echo dump($data);
+            $rdata['content'] = ob_get_clean();
+        } else {
+            ob_start(); ?><pre><?php var_dump($data);
+            $rdata['content'] = ob_get_clean(); ?></pre><?php
+        }
+
+        $r = Base::$c->get('view')->render($r, 'layouts/dump.twig', $rdata);
+
+        Base::respond($r);
+    }
+
+
+
     /**
      * State logging messages
      *
@@ -390,9 +431,11 @@ trait BaseHelper
      *
      * @return null
      */
-    public static function dump($var)
+    public static function barDump($var)
     {
+
         Debugger::barDump($var);
+
     }
 
 
@@ -406,7 +449,9 @@ trait BaseHelper
      */
     public static function log($log)
     {
+
         Debugger::log($log);
+
     }
 
 
@@ -421,7 +466,9 @@ trait BaseHelper
      */
     public static function clog($log)
     {
+
         Debugger::fireLog($log);
+
     }
 
 
@@ -443,6 +490,7 @@ trait BaseHelper
 
         $h = $key.'='. $val.'; Max-Age=43600; path=/; httponly';
         $r = Base::$response->withHeader('Set-Cookie', $h);
+
         Base::$response = $r;
     }
 
@@ -669,9 +717,6 @@ trait BaseHelper
 
 
 
-
-
-
     /**
      * Outputs a file.
      *
@@ -702,7 +747,7 @@ trait BaseHelper
         // Only debugMode
         if (Base::$cfg['debugMode'] ?? false) {
 
-            Base::$app->add(new Middlewares\Debugger(Base::$c));
+            Base::$app->add(new Utils\Debugger\Middleware(Base::$c));
 
             if (Base::$cfg['handleExceptions'] ?? false) {
                 // custom error handler
@@ -726,6 +771,7 @@ trait BaseHelper
         // into temp directory > _DROOT/tmp/i18n-cache/
 
         $dumper = '\App\Base::dumpGettextStr';
+
         Base::$app->get(Base::$cfg['locale']['dumpPath'], $dumper);
 
     }

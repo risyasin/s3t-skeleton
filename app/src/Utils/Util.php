@@ -11,12 +11,11 @@
  * @link     https://www.evrima.net/slim3base
  */
 
-namespace App;
+namespace App\Utils;
 
-
-use App\Utils\Cache;
-use RedBeanPHP\OODBBean;
+use App\Base;
 use RedBeanPHP\R;
+use RedBeanPHP\OODBBean;
 use Goutte\Client as MyClient;
 
 
@@ -31,7 +30,7 @@ use Goutte\Client as MyClient;
  * @link     https://www.evrima.net/slim3base
  */
 
-class Tools
+class Util
 {
 
     const ARR_PATH_SEP = '.';
@@ -443,7 +442,7 @@ class Tools
 
 
         try {
-            /* @var \App\AbstractModel $model */
+            /* @var \App\Origins\Model $model */
             $model = Base::MODEL_NS.ucfirst($modelName);
 
             // Direct tables.
@@ -458,7 +457,7 @@ class Tools
                     foreach ($item as $k => $v) {
                         if (is_object($v) && !empty($v->rel)) {
                             list($src, $where) = $v->rel;
-                            /* @var \App\AbstractModel $src  */
+                            /* @var \App\Origins\Model $src  */
                             $src = Base::MODEL_NS.ucfirst($src);
                             $parent = $src::findOne('WHERE '.$where.'');
                             $cur = $model::load($id);
@@ -495,7 +494,7 @@ class Tools
     {
         $data = [];
 
-        /* @var AbstractModel $model */
+        /* @var \App\Origins\Model $model */
         $model = Base::MODEL_NS.$model;
 
         $mm  = $model::findAll();

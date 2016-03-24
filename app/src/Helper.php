@@ -13,7 +13,10 @@
 
 namespace App;
 
+use App\Models\User;
+use App\Utils\Cache;
 use App\Utils\Session;
+use App\Utils\Util;
 use Slim\Http\Response;
 use Slim\Views\Twig;
 use Slim\Views\TwigExtension;
@@ -28,7 +31,7 @@ use Tracy\Dumper;
  *
  * @package App
  */
-trait BaseHelper
+trait Helper
 {
 
     /**
@@ -291,8 +294,8 @@ trait BaseHelper
     public static function set($key, $val)
     {
         // check if it's an array or stdClass.
-        if (strpos($key, Tools::ARR_PATH_SEP) !== false) {
-            Tools::setByPath(Base::$hiveData, $key, $val);
+        if (strpos($key, Util::ARR_PATH_SEP) !== false) {
+            Util::setByPath(Base::$hiveData, $key, $val);
         } else {
             Base::$hiveData[$key] = $val;
         }
@@ -310,8 +313,8 @@ trait BaseHelper
      */
     public static function get($key, $default = null)
     {
-        if (strpos($key, Tools::ARR_PATH_SEP) !== false) {
-            $val = Tools::getByPath(Base::$hiveData, $key);
+        if (strpos($key, Util::ARR_PATH_SEP) !== false) {
+            $val = Util::getByPath(Base::$hiveData, $key);
         } else {
             if (!empty(Base::$hiveData[$key])) {
                 $val = Base::$hiveData[$key];
@@ -539,7 +542,9 @@ trait BaseHelper
      */
     public static function pathFor($routeName, $args = [])
     {
+
         return Base::$c->get('router')->pathFor($routeName, $args);
+
     }
 
 
@@ -617,9 +622,22 @@ trait BaseHelper
 
         } */
 
+
         // Avatar service: Gravatar
         if (Base::get('login')) {
-            Base::$hiveData['login'] = Session::get('login');
+
+            // Cache::delete('login_'.Session::get('login'));
+            $login = Cache::via(
+                'login_'.Session::get('login'),
+                function () {
+                    $u = User::load(Session::get('login'));
+                    $u['avatar']='https://gravatar.com/avatar/'.md5($u['mail']);
+                    return $u;
+                }
+            );
+
+
+            Base::$hiveData['login'] = $login;
         }
 
         /* @var $twig \Twig_Environment */
@@ -729,7 +747,7 @@ trait BaseHelper
         /* @var Response $r */
         $r = Base::$c['response'];
 
-        $r->withHeader('Content-Type', Tools::getMimeType($filePath));
+        $r->withHeader('Content-Type', Util::getMimeType($filePath));
         $r->getBody()->write(file_get_contents($filePath));
 
         Base::respond($r);
@@ -754,7 +772,7 @@ trait BaseHelper
                 Base::$c['errorHandler'] = function ($c) {
 
                     return function ($request, $response, $exception) use ($c) {
-                        $handler = new ErrorHandler($c);
+                        $handler = new Utils\ErrorHandler($c);
                         return $handler->display($request, $response, $exception);
                     };
                 };

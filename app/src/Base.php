@@ -31,7 +31,7 @@ class Base
 {
 
     // Helper trait, All tooling stuff goes here!
-    use BaseHelper;
+    use Helper;
 
     /* @var array $cfg Holds config */
     public static $cfg;

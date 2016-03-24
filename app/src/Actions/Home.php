@@ -11,7 +11,7 @@
  * @link     https://www.evrima.net/slim3base
  */
 
-namespace App\Action;
+namespace App\Actions;
 
 use App\Base;
 use App\Origins\Action as AbstractAction;

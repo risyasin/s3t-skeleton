@@ -115,15 +115,15 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <!-- The user image in the navbar-->
 
-                        <img src="{{ avatar_url }}" class="user-image" alt="{{ login.name }}"/>
+                        <img src="{{ login.avatar }}" class="user-image" alt="{{ login.name }}"/>
                         <!-- hidden-xs hides the username on small devices so only the image appears. -->
                         <span class="hidden-xs">{{ login.name }}</span>
                     </a>
                     <ul class="dropdown-menu">
                         <!-- The user image in the menu -->
                         <li class="user-header">
-                            <img src="{{ avatar_url }}?s=160" class="img-circle" alt="{{ login.name }}">
-                            <p>{{ login.name }} <small>{{ login.role }} / </small></p>
+                            <img src="{{ login.avatar }}?s=160" class="img-circle" alt="{{ login.name }}">
+                            <p>{{ login.name }} <small>{{ login.mail }} </small></p>
                         </li>
                         <!-- Menu Body -->
                         <li class="user-body hidden">

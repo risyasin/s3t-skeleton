@@ -14,6 +14,7 @@
 namespace App\Origins;
 
 
+use App\Base;
 use RedBeanPHP\R as R;
 use RedBeanPHP\SimpleModel;
 use RedBeanPHP\OODBBean;
@@ -134,7 +135,7 @@ abstract class Model extends SimpleModel
     /**
      * Save bean
      *
-     * @param OODBBean|AbstractModel $bean Bean
+     * @param OODBBean|Model $bean Bean
      *
      * @return int|string
      */

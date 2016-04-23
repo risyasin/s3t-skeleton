@@ -13,10 +13,13 @@
 
 namespace App;
 
+use App\Models\Page;
 use App\Models\User;
 use App\Utils\Cache;
 use App\Utils\Session;
+use App\Utils\TwigDbAccess;
 use App\Utils\Util;
+use Slim\App;
 use Slim\Http\Response;
 use Slim\Views\Twig;
 use Slim\Views\TwigExtension;
@@ -377,6 +380,8 @@ trait Helper
      */
     public static function dump($data)
     {
+        // @TODO: Dump is broken for now.
+
         /* @var \Slim\Http\Response $r */
         $r = Base::$c['response']->withHeader('X-Dumper', 'Base::dump');
 
@@ -390,18 +395,12 @@ trait Helper
 
         Debugger::barDump($rdata['last'], 'Previous Call');
 
-        if (function_exists('dump')) {
-            ob_start();
-            echo dump($data);
-            $rdata['content'] = ob_get_clean();
-        } else {
-            ob_start(); ?><pre><?php var_dump($data);
-            $rdata['content'] = ob_get_clean(); ?></pre><?php
-        }
+        ob_start(); ?><pre><?php var_dump($data);
+        $rdata['content'] = ob_get_clean(); ?></pre><?php
 
-        $r = Base::$c->get('view')->render($r, 'layouts/dump.twig', $rdata);
+         $r = Base::$c->get('view')->render($r, 'modules/dump.twig', $rdata);
 
-        Base::respond($r);
+        Base::respond($r); exit;
     }
 
 
@@ -562,11 +561,8 @@ trait Helper
     {
 
         Base::stateLog('Rendering '.$template);
-        // rendering defaults.
 
-        if (empty(Base::$hiveData['project'])) {
-            Base::$hiveData['project'] = Base::$c['project'];
-        }
+        // rendering defaults.
 
         // Base::json(debug_backtrace()); exit;
 
@@ -624,18 +620,16 @@ trait Helper
 
 
         // Avatar service: Gravatar
-        if (Base::get('login')) {
-
+        if (Session::get('login')) {
             // Cache::delete('login_'.Session::get('login'));
             $login = Cache::via(
                 'login_'.Session::get('login'),
                 function () {
-                    $u = User::load(Session::get('login'));
+                    $u = User::load(Session::get('login'))->export();
                     $u['avatar']='https://gravatar.com/avatar/'.md5($u['mail']);
                     return $u;
                 }
             );
-
 
             Base::$hiveData['login'] = $login;
         }
@@ -646,6 +640,13 @@ trait Helper
         foreach (Base::$hiveData as $k => $v) {
             $twig->addGlobal($k, $v);
         }
+
+
+        $twig->addGlobal('config', Base::$cfg);
+
+        $twig->addGlobal('project', Base::$c['project']);
+
+        $twig->addGlobal('DB', new TwigDbAccess());
 
         /* @var \Slim\Http\Response $lastResp */
         //$lastResp = $called['args'][1];

@@ -16,6 +16,7 @@ namespace App\Modules;
 use App\Base;
 use App\Origins\Module as AbstractModule;
 use App\Models\Page;
+use App\Utils\Session;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -87,8 +88,8 @@ class Admin extends AbstractModule
                     }
                 )->setName('admin.pages');
 
-                // GET /admin/page
-                $app->get(
+                // GET|POST [ajax] /admin/page
+                $app->any(
                     '/page/{id}',
                     function (Request $req, Response $resp, $args) {
 
@@ -98,6 +99,11 @@ class Admin extends AbstractModule
                             $page = Page::create();
                         }
 
+                        if ($req->isXhr()) {
+                            $f = (object) $req->getParsedBody();
+                            Base::barDump($f);
+                        }
+
                         return Base::render(
                             'modules/admin/pageform.twig',
                             compact('page')
@@ -105,6 +111,7 @@ class Admin extends AbstractModule
 
                     }
                 )->setName('admin.page');
+
 
 
                 // GET /admin/menus
@@ -175,7 +182,7 @@ class Admin extends AbstractModule
             function (Request $request, Response $response, $next) {
 
                 // Admin requires auth login for any access!
-                if (empty($_SESSION['login']) || $_SESSION['login'] < 0) {
+                if (!Session::get('login') ?? false) {
                     return Base::redirect('auth.login');
                 }
 

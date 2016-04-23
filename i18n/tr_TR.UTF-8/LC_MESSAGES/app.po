@@ -61,7 +61,7 @@ msgstr "Kapat"
 
 #: tmp/i18n-cache/87/873a6f5439f5b11fe4b2bfa5fadb2baf5282f7005872bf55efa887d08754d26b.php:90
 msgid "What is happening!"
-msgstr "Ne oluyor!"
+msgstr "Neler oluyor?"
 
 #: tmp/i18n-cache/87/873a6f5439f5b11fe4b2bfa5fadb2baf5282f7005872bf55efa887d08754d26b.php:92
 msgid "What is happening2!"

@@ -26,5 +26,11 @@
 
 <script src="/ui/modules/admin.all.min.js"></script>
 {% block bodylast %}<!--bodylast//-->{% endblock %}
+<script type="text/javascript">
+    try {
+     var login = {{ login | json_encode | raw }};
+    } catch(e) { console.log(e); }
+
+</script>
 </body>
 </html>

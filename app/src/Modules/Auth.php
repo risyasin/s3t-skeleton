@@ -59,16 +59,10 @@ class Auth extends AbstractModule
      *
      * @param App $app Slim App
      *
-     * @return mixed
+     * @return null
      */
     public function routes($app)
     {
-
-        if ((Session::get('login') ?? false) && (Session::get('user')->id > 0)) {
-            Base::set('login', $_SESSION['user']);
-        } else {
-            Base::set('login', false);
-        }
 
         $app->group(
             $this->pathPrefix,
@@ -80,20 +74,10 @@ class Auth extends AbstractModule
                     function () {
                         /* @var \Slim\Container $this */
 
-                        if (Session::get('login')
-                            && Session::get('user')->id > 0
-                        ) {
-
-                            return Base::redirect(
-                                Base::pathFor(Base::$c['auth']['successRoute'])
+                        if (Session::get('login')) {
+                            Base::redirect(
+                                Base::$c['auth']['successRoute']
                             );
-                        }
-
-                        // if no user exist in db, then create default,
-                        // so can't lock ourselves outside,
-                        // probably this is not a good idea but...
-                        if (User::count() == 0) {
-                            DataSeed::defaultUser();
                         }
 
                         // @TODO: Implement here a nice remember me!
@@ -102,7 +86,7 @@ class Auth extends AbstractModule
                         $csrf_name = Base::$request->getAttribute('csrf_name');
                         $csrf_value = Base::$request->getAttribute('csrf_value');
 
-                        return Base::render(
+                        Base::render(
                             'modules/auth/login.twig',
                             compact('csrf_name', 'csrf_value')
                         );
@@ -118,58 +102,57 @@ class Auth extends AbstractModule
                         $sql = '(user = :user or mail = :user) and password = :pass';
 
                         if (false === Base::$request->getAttribute('csrf_result')) {
-
                             Base::set('error', 'form.submission');
-
-                        } else {
-
-                            $f = (object) Base::$request->getParsedBody();
-
-                            if (strlen($f->user) > 1) {
-
-                                $user = User::findOne(
-                                    $sql,
-                                    ['user' => $f->user, 'pass' => $f->pass]
-                                );
-
-                                if ($user['id'] ?? false) {
-
-                                    Session::put('login', (int) $user['id']);
-
-                                    $_SESSION['user'] = $login = (object) [
-                                        'name' => $user['name'],
-                                        'mail' => $user['mail'],
-                                        'ts' => time(),
-                                        'id' => (int) $user['id']
-                                    ];
-
-                                    Activity::add(
-                                        'login',
-                                        ['message' => $user['name'].' logged_in']
-                                    );
-
-                                    Session::delete('wrongpass');
-
-                                    if ($f->rememberme ?? false) {
-                                        Base::setCookie('rm', md5($user['mail']));
-                                    }
-
-                                    return Base::redirect(
-                                        Base::$c['auth']['successRoute']
-                                    );
-
-                                } else {
-                                    Session::increment('wrongpass');
-                                    Base::set('error', 'wrong.password');
-                                }
-
-                                return Base::render('modules/auth/login.twig');
-                            } else {
-                                Base::set('error', 'missing.username');
-                            }
+                            // exit immediately
+                            Base::render('modules/auth/login.twig');
                         }
 
-                        return Base::render('modules/auth/login.twig');
+                        $f = (object) Base::$request->getParsedBody();
+
+                        if (strlen($f->user) > 1) {
+
+                            $user = User::findOne(
+                                $sql,
+                                ['user' => $f->user, 'pass' => $f->pass]
+                            );
+
+                            if ($user['id'] ?? false) {
+
+                                Session::put('login', (int) $user['id']);
+
+                                $_SESSION['user'] = $login = (object) [
+                                    'name' => $user['name'],
+                                    'mail' => $user['mail'],
+                                    'ts' => time(),
+                                    'id' => (int) $user['id']
+                                ];
+
+                                Activity::add(
+                                    'login',
+                                    ['message' => $user['name'].' logged_in']
+                                );
+
+                                Session::delete('wrongpass');
+
+                                if ($f->rememberme ?? false) {
+                                    Base::setCookie('rm', md5($user['mail']));
+                                }
+
+                                Base::redirect(
+                                    Base::$c['auth']['successRoute']
+                                );
+
+                            } else {
+                                Session::increment('wrongpass');
+                                Base::set('error', 'wrong.password');
+                            }
+
+                            Base::render('modules/auth/login.twig');
+                        } else {
+                            Base::set('error', 'missing.username');
+                        }
+
+                        Base::render('modules/auth/login.twig');
                     }
                 );
 
@@ -180,7 +163,7 @@ class Auth extends AbstractModule
                     '/profile',
                     function () {
 
-                        return Base::render('modules/auth/profile.twig');
+                        Base::render('modules/auth/profile.twig');
 
                     }
                 )->setName('auth.profile');
@@ -194,7 +177,7 @@ class Auth extends AbstractModule
                         Session::delete('login');
                         Session::delete('user');
 
-                        return Base::redirect('auth.login');
+                        Base::redirect('auth.login');
 
                     }
                 )->setName('auth.logout');

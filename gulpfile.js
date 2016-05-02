@@ -82,7 +82,8 @@ mods.admin.css = {
         'bower_components/AdminLTE/dist/css/AdminLTE.min.css',
         'bower_components/AdminLTE/dist/css/skins/_all-skins.min.css',
         'bower_components/AdminLTE/plugins/iCheck/all.css',
-        'bower_components/AdminLTE/plugins/iCheck/square/blue.css'
+        'bower_components/AdminLTE/plugins/iCheck/square/blue.css',
+        'public/ui/modules/admin.css'
     ],
     'dest': 'public/ui/modules/',
     'name': 'admin.all.min.css'
@@ -96,7 +97,8 @@ mods.admin.js = {
         'bower_components/AdminLTE/plugins/iCheck/icheck.min.js',
         'bower_components/twbs-pagination/jquery.twbsPagination.min.js',
         'bower_components/tinymce/tinymce.min.js',
-        'bower_components/AdminLTE/dist/js/app.js'
+        'bower_components/AdminLTE/dist/js/app.js',
+        'public/ui/modules/admin.js'
     ],
     'dest': 'public/ui/modules/',
     'name': 'admin.all.min.js'

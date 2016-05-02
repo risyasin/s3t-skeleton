@@ -3,3 +3,11 @@
     max-width: 200px;
     width: 200px;
 }
+
+.pageform-tabs .tab-pane {
+    min-height: 12em;
+}
+
+.save-draft, .save-page {
+    margin-right: 1em;
+}

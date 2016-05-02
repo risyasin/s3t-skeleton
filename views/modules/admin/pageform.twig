@@ -19,7 +19,7 @@
                     <li><a href="#details" data-toggle="tab">{% trans 'Content' %}</a></li>
                     <li><a href="#extras" data-toggle="tab">{% trans 'Modules' %}</a></li>
                 </ul>
-                <div class="tab-content">
+                <div class="tab-content pageform-tabs">
                     <div class="active tab-pane" id="basics">
                         <div class="form-group">
                             <label for="name" class="col-sm-2 control-label">{% trans 'Page Name' %}</label>
@@ -75,13 +75,6 @@
                                 {% endfor %}
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <div class="col-sm-6 text-center">
-                                <button type="button" class="btn btn-danger save-page">{% trans 'Save Page' %}</button>
-                                <button type="button" class="btn btn-warning save-draft">{% trans 'Save Draft' %}</button>
-                            </div>
-                        </div>
                     </div>
                     <!-- /.tab-pane -->
                     <div class="tab-pane" id="details">
@@ -94,6 +87,13 @@
                     </div>
                     <!-- /.tab-pane -->
                     <div class="tab-pane" id="extras">
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-6 col-sm-6">
+                            <button type="button" class="btn btn-warning save-draft pull-right">{% trans 'Save Draft' %}</button>
+                            <button type="button" class="btn btn-danger save-page pull-right">{% trans 'Save Page' %}</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -114,6 +114,7 @@
             selector: '#page-content-area',
             height: 350,
             theme: 'modern',
+            // language: 'tr_TR', // CDN has no language files.
             plugins: [
                 'advlist autolink lists link image charmap print preview hr anchor pagebreak',
                 'searchreplace wordcount visualblocks visualchars code fullscreen',

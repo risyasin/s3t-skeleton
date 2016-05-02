@@ -259,28 +259,45 @@ trait Helper
      */
     final public static function registerDebugger()
     {
+        // if XDebug is working do not turn on DebugBar/Tracy
 
-        Debugger::enable(Debugger::DEVELOPMENT, _DROOT.'/tmp');
+        if (!empty($_COOKIE['XDEBUG_SESSION'])) {
+            Base::$cfg['debugMode'] = false;
+        }
 
-        Debugger::$strictMode = true;
+        if (Base::$cfg['debugMode'] ?? false) {
+            error_reporting(E_ALL);
+            ini_set('display_errors', true);
+            //set_error_handler('App\Base::errorHandler');
+            //set_exception_handler('App\Base::exceptionHandler');
 
-        Debugger::$showBar = true;
+            Debugger::enable(Debugger::DEVELOPMENT, _DROOT.'/tmp');
 
-        Debugger::$showLocation = Dumper::LOCATION_SOURCE;
+            Debugger::$strictMode = true;
 
-        Debugger::$productionMode = false;
+            Debugger::$showBar = true;
 
-        Debugger::timer('Debugger loaded');
+            Debugger::$showLocation = Dumper::LOCATION_SOURCE;
 
-        Debugger::barDump('Debugger log!');
+            Debugger::$productionMode = false;
 
-        $bar = Debugger::getBar();
+            Debugger::timer('Debugger loaded');
 
-        $bar->addPanel(new Utils\Debugger\QueryPanel());
+            Debugger::barDump('Debugger log!');
 
-        $bar->addPanel(new Utils\Debugger\TwigPanel());
+            $bar = Debugger::getBar();
 
-        Base::$c['tracy'] = true;
+            $bar->addPanel(new Utils\Debugger\QueryPanel());
+
+            $bar->addPanel(new Utils\Debugger\TwigPanel());
+
+            Base::$c['tracy'] = true;
+
+        } else {
+            error_reporting(0);
+            ini_set('display_errors', false);
+            Base::$c['tracy'] = false;
+        }
 
     }
 

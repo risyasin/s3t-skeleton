@@ -103,17 +103,6 @@ class Base
 
         Base::registerDebugger();
 
-        if (Base::$cfg['debugMode'] ?? false) {
-            error_reporting(E_ALL);
-            ini_set('display_errors', true);
-            //set_error_handler('App\Base::errorHandler');
-            //set_exception_handler('App\Base::exceptionHandler');
-
-        } else {
-            error_reporting(0);
-            ini_set('display_errors', false);
-        }
-
         Base::setLocale();
 
         Base::registerDB();

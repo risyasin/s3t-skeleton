@@ -15,7 +15,7 @@ namespace App\Models;
 
 
 use App\Origins\Model as AbstractModel;
-use App\Tools;
+use App\Utils\Util;
 
 /**
  * Class User
@@ -140,7 +140,7 @@ class User extends AbstractModel
 
         $this->bean->ip = $_SERVER['REMOTE_ADDR']??'127.0.0.1';
 
-        $this->bean->updated = Tools::isoDateTime();
+        $this->bean->updated = Util::isoDateTime();
 
     }
 

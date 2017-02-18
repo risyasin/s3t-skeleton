@@ -14,7 +14,7 @@
 namespace App\Models;
 
 use App\Origins\Model as AbstractModel;
-use App\Tools;
+use App\Utils\Util;
 
 /**
  * Class Page
@@ -58,7 +58,7 @@ class Page extends AbstractModel
             $this->bean->path = $this->bean->title;
         }
 
-        $this->bean->path = Tools::slugify($this->bean->path);
+        $this->bean->path = Util::slugify($this->bean->path);
 
         $this->bean->path = '/'.ltrim($this->bean->path, '/');
 

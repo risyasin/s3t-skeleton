@@ -16,6 +16,7 @@ namespace App\Utils\Seeder;
 use App\Base;
 use App\Models\Page;
 use App\Models\User;
+use App\Utils\Util;
 use RedBeanPHP\R;
 
 /**
@@ -102,7 +103,7 @@ class Json
             $page->template = 'default.twig';
             $page->title = 'Default page of skeleton app';
             $page->keywords = 'skeleton app, sample, keywords, page maker, seo';
-            $page->content = Tools::generateText(1200, true);
+            $page->content = Util::generateText(1200, true);
             $page->lang = Base::$locale;
 
             return Page::save($page);

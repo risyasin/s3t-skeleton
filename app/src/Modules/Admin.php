@@ -101,7 +101,17 @@ class Admin extends AbstractModule
 
                         if ($req->isXhr()) {
                             $f = (object) $req->getParsedBody();
-                            Base::barDump($f);
+                            Base::clog($f);
+                            $page->import($f);
+                            Page::save($page);
+                        }
+
+                        if ($req->isPost()) {
+                            $f = (object) $req->getParsedBody();
+                            $page->import($f);
+                            Page::save($page);
+                            Base::clog(['saved?', $f]);
+
                         }
 
                         return Base::render(

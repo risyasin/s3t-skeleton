@@ -50,13 +50,9 @@ final class Home extends AbstractAction
         // $data['post'] = $post->getProperties();
 
         $data['users'] = User::findAll('ORDER BY name ASC LIMIT 5');
-        // $data['nusers'] = R::findAll( 'fblg_user', 'ORDER BY name ASC LIMIT 5');
-
-        // return Base::json($data);
 
         Cache::set('srv', $_SERVER);
 
-        Cache::delete('last');
         $data['cl'] = Cache::via(
             'last',
             function () {

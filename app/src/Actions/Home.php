@@ -16,6 +16,7 @@ namespace App\Actions;
 use App\Base;
 use App\Origins\Action as AbstractAction;
 use App\Models\User as User;
+use App\Utils\Util;
 use App\Utils\Cache;
 use App\Utils\Session;
 use Slim\Http\Request;
@@ -50,6 +51,8 @@ final class Home extends AbstractAction
         // $data['post'] = $post->getProperties();
 
         $data['users'] = User::findAll('ORDER BY name ASC LIMIT 5');
+
+        $data['weather'] = Util::weatherStatus();
 
         Cache::set('srv', $_SERVER);
 

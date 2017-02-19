@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Utils\Cache;
 use App\Utils\Session;
 use App\Utils\TwigDbAccess;
+use App\Utils\TwigFnProxy;
 use App\Utils\Util;
 use Slim\App;
 use Slim\Http\Response;
@@ -664,6 +665,10 @@ trait Helper
         $twig->addGlobal('project', Base::$c['project']);
 
         $twig->addGlobal('DB', new TwigDbAccess());
+
+        $twig->addGlobal('Util', new TwigFnProxy('Utils\\Util'));
+
+        $twig->addGlobal('PHP', new TwigFnProxy());
 
         /* @var \Slim\Http\Response $lastResp */
         //$lastResp = $called['args'][1];

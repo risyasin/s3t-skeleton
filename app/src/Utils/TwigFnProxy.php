@@ -17,26 +17,30 @@ use App\Base;
 
 
 /**
- * Class TwigDbAccess
+ * Class TwigFnProxy
  *
  * @category Base
- * @package  App\Utils\TwigDbAccess
+ * @package  App\Utils\TwigFnProxy
  * @author   Yasin inat <risyasin@gmail.com>
  * @license  Apache 2.0
  * @link     https://www.evrima.net/slim3base
  */
-class TwigDbAccess
+class TwigFnProxy
 {
 
 
     private $_current = null;
 
     /**
-     * TwigDbAccess constructor.
+     * TwigFnProxy constructor.
+     *
+     * @param string $class Class
      */
-    public function __construct()
+    public function __construct($class = null)
     {
-        // Base::barDump('called TwigDbAccess');
+        if (class_exists('App\\'.$class)) {
+            $this->_current = 'App\\'.$class;
+        }
 
         return $this;
     }
@@ -45,37 +49,35 @@ class TwigDbAccess
     /**
      * Call proxy
      *
-     * @param string $m   Method
-     * @param array  $arg Arguments
+     * @param string $func Method
+     * @param array  $args Arguments
      *
      * @return self
      */
-    public function __call($m, $arg)
+    public function __call($func, $args)
     {
+        if ($this->_current ?? false) {
 
-        if (class_exists(Base::MODEL_NS.$m)) {
-
-            $this->_current = Base::MODEL_NS.$m;
-
-            return $this;
+            return call_user_func_array([$this->_current, $func], $args);
 
         } else {
 
-            if (method_exists($this->_current, $m)) {
+            if (function_exists($func)) {
 
-                return call_user_func_array([$this->_current, $m], $arg);
+                return $func(...$args);
 
             } else {
 
-                return $this;
+                return null;
 
             }
         }
+
     }
 
 
     /**
-     * Proxy for models
+     * Proxy for static methods/classes
      *
      * @param string $prop Property Access
      *
@@ -83,9 +85,7 @@ class TwigDbAccess
      */
     public function __get($prop)
     {
-        // Base::barDump('called prop '.$prop);
         return $prop;
-
     }
 
 }

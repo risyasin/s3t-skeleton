@@ -85,7 +85,7 @@ class TwigPanel implements IBarPanel
                     list($f, $c) = explode('.twig', $ln);
                     $fn = trim(str_replace('└', '', $f)).'.twig';
                     $f = str_replace(' ', '&nbsp;', $f).'.twig';
-                    $url = 'editor://open/?file='.$vp.'/'.$fn.'&line=1';
+                    $url = 'phpstorm://open/?file='.$vp.'/'.$fn.'&line=1';
                     $ln = '<a href="'.$url.'">'.$f.'</a>'.$c;
                 }
                 echo '<li>'.$ln.'</li>';

@@ -52,7 +52,6 @@ final class Home extends AbstractAction
 
         $data['users'] = User::findAll('ORDER BY name ASC LIMIT 5');
 
-        $data['weather'] = Util::weatherStatus();
 
         Cache::set('srv', $_SERVER);
 

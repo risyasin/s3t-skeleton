@@ -16,6 +16,7 @@ namespace App\Modules;
 use App\Base;
 use App\Origins\Module as AbstractModule;
 use App\Models\Page;
+use App\Models\User;
 use App\Utils\Session;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -101,6 +102,7 @@ class Admin extends AbstractModule
 
                         if ($req->isXhr()) {
                             $f = (object) $req->getParsedBody();
+                            unset($f->type);
                             Base::clog($f);
                             $page->import($f);
                             Page::save($page);
@@ -108,6 +110,7 @@ class Admin extends AbstractModule
 
                         if ($req->isPost()) {
                             $f = (object) $req->getParsedBody();
+                            unset($f->type);
                             $page->import($f);
                             Page::save($page);
                             Base::clog(['saved?', $f]);
@@ -121,6 +124,61 @@ class Admin extends AbstractModule
 
                     }
                 )->setName('admin.page');
+
+
+                // GET /admin/users
+                $app->get(
+                    '/users/{p}',
+                    function (Request $req, Response $res, $args) {
+
+                        $users = User::paginate(
+                            10,
+                            $args['p'],
+                            'ORDER BY `user` ASC'
+                        );
+
+                        return Base::render(
+                            'modules/admin/users.twig',
+                            compact('users')
+                        );
+
+                    }
+                )->setName('admin.users');
+
+                // GET|POST [ajax] /admin/user/{id}
+                $app->any(
+                    '/user/{id}',
+                    function (Request $req, Response $resp, $args) {
+
+                        if ($args['id'] != 'new') {
+                            $user = User::load($args['id']);
+                        } else {
+                            $user = User::create();
+                        }
+
+                        if ($req->isXhr()) {
+                            $f = (object) $req->getParsedBody();
+                            unset($f->type);
+                            Base::clog($f);
+                            $user->import($f);
+                            User::save($user);
+                        }
+
+                        if ($req->isPost()) {
+                            $f = (object) $req->getParsedBody();
+                            unset($f->type);
+                            $user->import($f);
+                            User::save($user);
+                            Base::clog(['saved?', $f]);
+                        }
+
+                        return Base::render(
+                            'modules/admin/userform.twig',
+                            compact('user')
+                        );
+
+                    }
+                )->setName('admin.user');
 
 
 

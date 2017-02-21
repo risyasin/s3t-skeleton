@@ -17,12 +17,12 @@
             </li>
 
             <li class="treeview">
-                <a href="{{ path_for('admin.users') }}"><i class="fa fa-users"></i><span>{% trans 'Manage Users' %}</span>
+                <a href="{{ path_for('admin.users', {"p":1}) }}"><i class="fa fa-users"></i><span>{% trans 'Manage Users' %}</span>
                         <i class="fa fa-angle-left pull-right"></i></a>
                 <ul class="treeview-menu">
 
-                    <li><a href="{{ path_for('admin.users') }}">{% trans 'User list' %}</a></li>
-                    <li><a href="{{ path_for('admin.users') }}">{% trans 'Create new user' %} <i class="fa fa-plus pull-right"></i></a></li>
+                    <li><a href="{{ path_for('admin.users', {"p":1}) }}">{% trans 'User list' %}</a></li>
+                    <li><a href="{{ path_for('admin.user', {'id':'new'}) }}">{% trans 'Create new user' %} <i class="fa fa-plus pull-right"></i></a></li>
                     <li><a href="{{ path_for('admin.roles') }}">{% trans 'User roles' %}</a></li>
                 </ul>
             </li>

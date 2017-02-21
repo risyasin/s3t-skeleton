@@ -236,17 +236,19 @@ class Util
      * Fetches & caches Weather status from
      * mynet.com/havadurumu/asya/turkiye/izmir
      *
+     * @param string $city City name
+     *
      * @return mixed
      */
-    public static function weatherStatus()
+    public static function weatherStatus($city)
     {
 
-        if (!Cache::get('weatherStatus')) {
+        if (!Cache::get('weatherStatus_'.$city)) {
 
             $client = new MyClient();
 
             $crawler = $client->request(
-                'get', 'http://www.mynet.com/havadurumu/asya/turkiye/izmir'
+                'get', 'http://www.mynet.com/havadurumu/asya/turkiye/'.$city
             );
 
             $res = $crawler->filter(

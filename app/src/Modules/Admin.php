@@ -155,7 +155,7 @@ class Admin extends AbstractModule
                         } else {
                             $user = User::create();
                         }
-
+                        // @Todo: maybe password can be improved?
                         if ($req->isXhr()) {
                             $f = (object) $req->getParsedBody();
                             unset($f->type);
@@ -176,7 +176,6 @@ class Admin extends AbstractModule
                             'modules/admin/userform.twig',
                             compact('user')
                         );
-
                     }
                 )->setName('admin.user');
 

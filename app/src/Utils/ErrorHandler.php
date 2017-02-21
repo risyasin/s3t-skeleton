@@ -36,9 +36,6 @@ class ErrorHandler
     /* @var $container \Slim\Container  */
     protected $container;
 
-    /* @var $this->dbjr \DebugBar\JavascriptRenderer */
-    protected $dbjr;
-
     protected $details;
 
     /**
@@ -60,8 +57,6 @@ class ErrorHandler
      */
     public function __construct($container)
     {
-
-        $this->dbjr = $container->get('debugbar')->getJavascriptRenderer();
 
         $this->details = (bool) $container->get('settings')['displayErrorDetails'];
 
@@ -169,7 +164,10 @@ class ErrorHandler
         }
 
         if (($file = $exception->getFile())) {
-            $html .= '<div><strong>File:</strong> '.$file.'</div>';
+            $line = $exception->getLine();
+            $html .= '<div><strong>File:</strong>';
+            $html .= '<a href="phpstorm://open/?file='.$file.'&line='.$line;
+            $html .= '">'.$file.'</a></div>';
         }
 
         if (($line = $exception->getLine())) {

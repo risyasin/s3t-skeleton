@@ -79,7 +79,7 @@ class TwigDbAccess
      *
      * @param string $prop Property Access
      *
-     * @return self
+     * @return string
      */
     public function __get($prop)
     {

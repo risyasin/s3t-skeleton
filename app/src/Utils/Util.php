@@ -229,6 +229,8 @@ class Util
 
         $cur = $value;
 
+        return null;
+
     }
 
 
@@ -239,6 +241,7 @@ class Util
      * @param string $city City name
      *
      * @return mixed
+     * @throws \Exception
      */
     public static function weatherStatus($city)
     {
@@ -276,11 +279,11 @@ class Util
     }
 
 
-
     /**
      * Fetches & caches exchange rates from http://finans.mynet.com/borsa/
      *
      * @return array
+     * @throws \Exception
      */
     public static function exchangeRates()
     {
@@ -490,7 +493,9 @@ class Util
      *
      * @param string $model Model to export
      *
-     * @return string
+     * @return mixed
+     *
+     * @throws \Interop\Container\Exception\ContainerException
      */
     public static function exportAsJson($model)
     {

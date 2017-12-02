@@ -40,7 +40,7 @@ class Json
     {
 
         /* @var \Slim\Http\Request $r */
-        $r = Base::$c['request'];
+        // $r = Base::$c['request'];
 
         if (User::count() > 0) {
             // default user can only be added
@@ -80,6 +80,7 @@ class Json
 
         // no need to use users seeder.
         // on every login, auth module checks if user table exists
+        return null;
 
     }
 

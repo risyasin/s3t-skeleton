@@ -15,6 +15,7 @@ namespace App\Utils\Debugger;
 
 use Slim\Http\Request;
 use Slim\Http\Response;
+use \Tracy\Debugger as Debugger;
 
 /**
  * Class Debugger
@@ -52,17 +53,19 @@ class Middleware
      */
     public function __invoke(Request $request, Response $response, $next)
     {
-        $tracy = '<!--// TRACY //-->';
+        // $tracy = '<!--// TRACY //-->' . "\n";
 
         $response = $next($request, $response);
 
         ob_start();
         //OutputDebugger::enable();
-        \Tracy\Debugger::getBar()->render();
-        $tracy = ob_get_clean();
+        Debugger::getBar()->render();
+        $buffer = ob_get_clean();
+
+        $tracy = '<!--// TRACY //-->'.$buffer.'</body>';
 
         // now attach it to response
-        return $this->replaceContent($response, '</body>', $tracy.'</body>');
+        return $this->replaceContent($response, '</body>', $tracy);
     }
 
 

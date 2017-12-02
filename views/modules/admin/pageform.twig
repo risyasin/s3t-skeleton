@@ -106,27 +106,28 @@
 
 {% block bodylast %}
     <script type="text/javascript">
+        "use strict";
         try {
             var page = {{ page.export() | json_encode | raw }};
         } catch(e) { console.log(e); }
 
         tinymce.init({
-            selector: '#page-content-area',
+            selector: "#page-content-area",
             height: 350,
-            theme: 'modern',
+            theme: "modern",
             // language: 'tr_TR', // CDN has no language files.
             plugins: [
-                'advlist autolink lists link image charmap print preview hr anchor pagebreak',
-                'searchreplace wordcount visualblocks visualchars code fullscreen',
-                'insertdatetime media nonbreaking save table contextmenu directionality',
-                'emoticons template paste textcolor colorpicker textpattern imagetools'
+                "advlist autolink lists link image charmap print preview hr anchor pagebreak",
+                "searchreplace wordcount visualblocks visualchars code fullscreen",
+                "insertdatetime media nonbreaking save table contextmenu directionality",
+                "emoticons template paste textcolor colorpicker textpattern imagetools"
             ]
         });
 
-        $('button.save-page').click(function (e) {
+        $("button.save-page").click(function (e) {
             e.preventDefault();
-            console.log('button.save-page click');
-            $('#page-form').submit();
+            console.log("button.save-page click");
+            $("#page-form").submit();
         });
     </script>
 {% endblock %}

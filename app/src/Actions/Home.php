@@ -16,9 +16,9 @@ namespace App\Actions;
 use App\Base;
 use App\Origins\Action as AbstractAction;
 use App\Models\User as User;
-use App\Utils\Util;
+//use App\Utils\Util;
 use App\Utils\Cache;
-use App\Utils\Session;
+//use App\Utils\Session;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -42,6 +42,8 @@ final class Home extends AbstractAction
      * @param array    $args args
      *
      * @return null
+     * @throws \Interop\Container\Exception\ContainerException
+     * @throws \Exception
      */
     public function index(Request $req, Response $resp, $args)
     {

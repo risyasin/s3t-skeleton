@@ -55,7 +55,7 @@ class Admin extends AbstractModule
      *
      * @param \Slim\App $app Slim
      *
-     * @return Response
+     * @return Mixed
      */
     public function routes($app)
     {
@@ -258,6 +258,8 @@ class Admin extends AbstractModule
                 return $response;
             }
         );
+
+        return null;
     }
 
 }

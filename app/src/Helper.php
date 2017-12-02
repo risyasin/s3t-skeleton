@@ -155,15 +155,13 @@ trait Helper
     }
 
 
-
-
-
     /**
      * DB registration
      * Manages db connections
      * also sets up fs db via sqlite
      *
      * @return null
+     * @throws \RedBeanPHP\RedException
      */
     final public static function registerDB()
     {
@@ -388,13 +386,13 @@ trait Helper
     }
 
 
-
     /**
      * Dump Response
      *
      * @param mixed $data Dump object
      *
      * @return null
+     * @throws \Interop\Container\Exception\ContainerException
      */
     public static function dump($data)
     {
@@ -548,14 +546,15 @@ trait Helper
     }
 
 
-
     /**
      * Path for
      *
      * @param string $routeName Route name
-     * @param array  $args      Route arguments
+     * @param array $args Route arguments
      *
      * @return string
+     * @throws \Interop\Container\Exception\ContainerException
+     * @throws \Interop\Container\Exception\ContainerException
      */
     public static function pathFor($routeName, $args = [])
     {
@@ -565,15 +564,15 @@ trait Helper
     }
 
 
-
     /**
      * Fixed Render Method.
      * DO NOT PLAY with this unless you know what you are doing!
      *
      * @param string $template View name
-     * @param array  $data     Data array
+     * @param array $data Data array
      *
      * @return null
+     * @throws \Interop\Container\Exception\ContainerException
      */
     final public static function render($template, $data = [])
     {
@@ -688,6 +687,7 @@ trait Helper
      * po/mo files has to be placed in /i18n directory
      *
      * @return mixed
+     * @throws \Interop\Container\Exception\ContainerException
      */
     public static function setLocale()
     {
@@ -818,11 +818,11 @@ trait Helper
     }
 
 
-
     /**
      * Returns available Routes list for logged in User
      *
      * @return array
+     * @throws \Interop\Container\Exception\ContainerException
      */
     public static function getRouteList()
     {
@@ -849,7 +849,10 @@ trait Helper
     /**
      * Gettext slug dumper
      *
-     * @return array
+     * @return void
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      */
     public static function dumpGettextStr()
     {

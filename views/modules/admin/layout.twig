@@ -27,8 +27,9 @@
 <script src="/ui/modules/admin.all.min.js"></script>
 {% block bodylast %}<!--bodylast//-->{% endblock %}
 <script type="text/javascript">
+    'use strict';
     try {
-     var login = {{ login | json_encode | raw }};
+     window.login = {{ login | json_encode | raw }};
     } catch(e) { console.log(e); }
 
 </script>

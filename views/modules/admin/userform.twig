@@ -106,14 +106,15 @@
 
 {% block bodylast %}
     <script type="text/javascript">
+        "use strict";
         try {
-            var user = {{ user.export() | json_encode | raw }};
+            window.user = {{ user.export() | json_encode | raw }};
         } catch(e) { console.log(e); }
 
-        $('button.save-page').click(function (e) {
+        $("button.save-page").click(function (e) {
             e.preventDefault();
-            console.log('button.save-page click');
-            $('#user-form').submit();
+            console.log("button.save-page click");
+            $("#user-form").submit();
         });
     </script>
 {% endblock %}

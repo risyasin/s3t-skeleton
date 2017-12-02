@@ -57,14 +57,15 @@
 
 {% block bodylast %}
     <script type="text/javascript">
+        "use strict";
         $(document).ready(function(){
-            var pgs = $('ul.pagination');
+            var pgs = $("ul.pagination");
             if (pgs.length > 0){
                 pgs.twbsPagination({
-                    totalPages: pgs.data('page-count'),
+                    totalPages: pgs.data("page-count"),
                     visiblePages: 7,
-                    hrefVariable: '##',
-                    href: '{{ path_for('admin.pages',{'p':'##'}) }}'
+                    hrefVariable: "##",
+                    href: "{{ path_for('admin.pages',{'p':'##'}) }}"
 //                    onPageClick: function (e, page) {
 //
 //                        console.log('page', page);

@@ -11,4 +11,8 @@ define('_DROOT', dirname(__DIR__));
 
 require _DROOT.'/vendor/autoload.php';
 
-\App\Base::run();
+try {
+    \App\Base::run();
+} catch(Exception $e) {
+    trigger_error($e->getMessage());
+}

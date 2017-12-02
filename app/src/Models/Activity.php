@@ -14,6 +14,7 @@
 namespace App\Models;
 
 use App\Origins\Model as AbstractModel;
+use RedUNIT\Base\Arrays;
 
 /**
  * Class Activity
@@ -47,7 +48,8 @@ class Activity extends AbstractModel
      */
     public function open()
     {
-        $this->bean->data = json_decode($this->bean->data);
+        $this->bean->data = json_decode((string)$this->bean->data);
+        return null;
     }
 
     /**
@@ -59,6 +61,7 @@ class Activity extends AbstractModel
     {
         $this->bean->data = json_encode($this->bean->data);
         $this->bean->time = time();
+        return null;
     }
 
 
@@ -74,7 +77,7 @@ class Activity extends AbstractModel
     {
         // wrap as array
         if (is_string($data)) {
-            $data['message'] = $data;
+            $data = ['message' => $data];
         }
 
         /* @var self $new */
@@ -84,6 +87,8 @@ class Activity extends AbstractModel
         $new->data = $data;
 
         self::save($new);
+
+        return null;
 
     }
 

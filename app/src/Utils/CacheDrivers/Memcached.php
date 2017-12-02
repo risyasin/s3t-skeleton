@@ -64,6 +64,7 @@ class Memcached implements CacheInterface
      * @param string $key Key
      *
      * @return mixed
+     * @throws \Exception
      */
     public static function get(string $key)
     {
@@ -76,10 +77,11 @@ class Memcached implements CacheInterface
      * Cache setter
      *
      * @param string $key Key
-     * @param string $val Value
+     * @param mixed  $val Value
      * @param int    $ttl Time
      *
      * @return mixed
+     * @throws \Exception
      */
     public static function set(string $key, $val, int $ttl = null)
     {
@@ -99,6 +101,7 @@ class Memcached implements CacheInterface
      * @param string $key Key
      *
      * @return bool
+     * @throws \Exception
      */
     public static function has(string $key)
     {
@@ -120,6 +123,7 @@ class Memcached implements CacheInterface
      * Cache information
      *
      * @return mixed
+     * @throws \Exception
      */
     public static function info()
     {
@@ -135,6 +139,7 @@ class Memcached implements CacheInterface
      * @param string $key Key
      *
      * @return mixed
+     * @throws \Exception
      */
     public static function delete(string $key)
     {
@@ -150,6 +155,7 @@ class Memcached implements CacheInterface
      * @param string $type Cache type
      *
      * @return mixed
+     * @throws \Exception
      */
     public static function clean($type = 'user')
     {

@@ -127,7 +127,7 @@ class Apc implements CacheInterface
     public static function clean($type = 'user')
     {
 
-        return \apcu_clear_cache($type);
+        return \apcu_clear_cache();
 
     }
 

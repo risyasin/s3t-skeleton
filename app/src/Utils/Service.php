@@ -79,6 +79,7 @@ class Service
      * @param array  $opts   Curl options
      *
      * @return object
+     * @throws \Exception
      */
     public static function get($url, Array $params = [], Array $opts = [])
     {
@@ -105,6 +106,7 @@ class Service
      * @param array  $opts Curl opts
      *
      * @return object
+     * @throws \Exception
      */
     public static function post($url, Array $data = [], Array $opts = [])
     {
@@ -146,7 +148,7 @@ class Service
      * @param array  $data Payload as array
      * @param array  $opts Curl opts
      *
-     * @return object
+     * @return null
      */
     public static function put($url, $data = [], Array $opts = [])
     {
@@ -555,6 +557,7 @@ class Service
      * @param string $t  Auth token
      *
      * @return object
+     * @throws \Exception
      */
     public static function pushOver($tx, $d = null, $u = null, $dv = null, $t = null)
     {

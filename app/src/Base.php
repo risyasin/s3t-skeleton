@@ -13,6 +13,7 @@
 
 namespace App;
 
+use Exception;
 use Slim\App as Slim3;
 use Slim\Container;
 
@@ -78,11 +79,11 @@ class Base
     /**
      * App facade!
      *
-     * @throws \Exception
-     * @throws \Slim\Exception\MethodNotAllowedException
-     * @throws \Slim\Exception\NotFoundException
-     *
      * @return null
+     *
+     * @throws Exception
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public static function run()
     {
@@ -123,6 +124,7 @@ class Base
 
         Base::$params = Base::$app->getContainer()->get('request')->getParams();
 
+        // routes?
         include_once _DROOT.'/app/routes.php';
 
         if (count(Base::$moduleRegistry) > 0) {
@@ -151,8 +153,13 @@ class Base
             }
         );
 
-        Base::$app->run();
+        try {
+            Base::$app->run();
+        } catch (Exception $e) {
+            trigger_error($e->getMessage());
+        }
 
+        return null;
     }
 
 

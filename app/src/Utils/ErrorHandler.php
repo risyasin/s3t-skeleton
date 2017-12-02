@@ -54,6 +54,8 @@ class ErrorHandler
      * ErrorHandler constructor.
      *
      * @param \Slim\Container $container DIC
+     *
+     * @throws \Interop\Container\Exception\ContainerException
      */
     public function __construct($container)
     {

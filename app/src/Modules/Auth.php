@@ -15,7 +15,7 @@ namespace App\Modules;
 
 
 use App\Base;
-use App\Utils\Seeder\Json as DataSeed;
+//use App\Utils\Seeder\Json as DataSeed;
 use App\Models\Activity;
 use App\Models\User;
 use App\Origins\Module as AbstractModule;
@@ -185,6 +185,7 @@ class Auth extends AbstractModule
             }
         );
 
+        return null;
     }
 
 
@@ -209,6 +210,7 @@ class Auth extends AbstractModule
 
         $app->add($guard);
 
+        return null;
     }
 
 }

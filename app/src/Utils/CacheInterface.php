@@ -5,7 +5,7 @@
  * Created at 19/03/16 11:10 by yas
  *
  * @category Base
- * @package App\Utils
+ * @package  App\Utils
  * @author   Yasin inat <risyasin@gmail.com>
  * @license  Apache 2.0
  * @link     https://www.evrima.net/slim3
@@ -70,7 +70,7 @@ interface CacheInterface
      */
     public static function has(string $key);
 
-    
+
     /**
      * Delete all cache
      *

@@ -147,6 +147,7 @@ class Base
 
         register_shutdown_function(
             function () {
+                $a = 123;
                 // @Todo: implement a proper shutdown to handle new exceptions.
                 // R::close();
                 // Base::stateLog('Shutting down!');

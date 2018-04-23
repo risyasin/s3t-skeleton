@@ -69,13 +69,13 @@
 
 {% block scripts %}
 <script type="text/javascript">
+    "use strict";
     $(document).ready(function(){
         $('input[name=rememberme]').iCheck({
             checkboxClass: 'icheckbox_square-blue',
             radioClass: 'iradio_square-blue',
             increaseArea: '20%' // optional
         });
-
         $('#login').submit(function (e) {
             var p = $('#pass');
             p.val(SparkMD5.hash(p.val(), false));

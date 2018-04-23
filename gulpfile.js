@@ -139,7 +139,7 @@ gulp.task('admin', ['admin:css', 'admin:js', 'admin:assets', 'clean:twigcache'],
 gulp.task('i18n', shell.task([
     // Gettext can not read .twig files so we have to convert them to PHP files
     // dumping all slugs in twig files into temp directory > _DROOT/tmp/i18n-cache/
-    'curl -L -s http://slim.dev/__dumpGettextStr', // i am too lazy to add http.client here. sorry bro.
+    'curl -L -s http://slim.test/__dumpGettextStr', // i am too lazy to add http.client here. sorry bro.
     // Updating i18n/en_US.UTF-8/LC_MESSAGES/app.po file with missing slugs
     'xgettext --default-domain=app --output-dir=i18n/en_US.UTF-8/LC_MESSAGES --from-code=UTF-8 --omit-header -j -n -L PHP tmp/i18n-cache/*/*.php',
     // Updating i18n/tr_TR.UTF-8/LC_MESSAGES/app.po file with missing slugs

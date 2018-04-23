@@ -13,20 +13,21 @@
 
 namespace App;
 
-use App\Models\Page;
+//use App\Models\Page;
 use App\Models\User;
 use App\Utils\Cache;
 use App\Utils\Session;
 use App\Utils\TwigDbAccess;
 use App\Utils\TwigFnProxy;
 use App\Utils\Util;
-use Slim\App;
+//use Slim\App;
 use Slim\Http\Response;
 use Slim\Views\Twig;
 use Slim\Views\TwigExtension;
 use RedBeanPHP\R as R;
 use Tracy\Debugger;
 use Tracy\Dumper;
+use \Interop\Container\Exception\ContainerException;
 
 /**
  * Class BaseHelper
@@ -59,6 +60,7 @@ trait Helper
 
             // you can overwrite your setting by environment variable "APP_ENV".
             $envConfigFile = _DROOT.'/app/config/'.Base::$env.'.php';
+
             if (is_file($envConfigFile) && is_readable($envConfigFile)) {
                 $envConfig = include_once $envConfigFile;
                 if (is_array($envConfig)) {
@@ -69,7 +71,7 @@ trait Helper
             // you can even add your own config,
             // in case of multiple developers/servers in different environments
             if (!empty(Base::$dev)) {
-                /* @var string $devConfigFile app/config/myname.php */
+                /* @var string $devConfigFile app/config/dev.php */
                 $devConfigFile = _DROOT.'/app/config/'.Base::$dev.'.php';
                 if (is_file($devConfigFile) && is_readable($devConfigFile)) {
                     $devConfig = include_once $devConfigFile;
@@ -89,6 +91,7 @@ trait Helper
             trigger_error('Unable to load config! Can not continue.', E_CORE_ERROR);
         }
 
+        return;
     }
 
 
@@ -152,6 +155,7 @@ trait Helper
             }
         }
 
+        return;
     }
 
 
@@ -205,6 +209,7 @@ trait Helper
 
         }
 
+        return;
     }
 
 
@@ -248,6 +253,7 @@ trait Helper
             return $twig;
         };
 
+        return;
     }
 
 
@@ -298,6 +304,7 @@ trait Helper
             Base::$c['tracy'] = false;
         }
 
+        return;
     }
 
 
@@ -362,6 +369,7 @@ trait Helper
 
         Base::respond($r);
 
+        return;
     }
 
 
@@ -372,17 +380,26 @@ trait Helper
      * @param array  $args  Args if needed
      * @param int    $code  HTTP code
      *
+     * @throws ContainerException
+     *
      * @return null
      */
     public static function redirect($route, $args = [], $code = 301)
     {
 
-        $url = Base::pathFor($route, $args);
+        try {
+            $url = Base::pathFor($route, $args);
 
-        $r = Base::$c['response']->withStatus($code)->withHeader('Location', $url);
+            $r = Base::$c['response']->withStatus($code)
+                                     ->withHeader('Location', $url);
+            // now redirection happens
+            Base::respond($r);
 
-        Base::respond($r);
+        } catch(ContainerException $exception) {
+            Debugger::log($exception->getMessage());
+        }
 
+        return;
     }
 
 
@@ -392,7 +409,7 @@ trait Helper
      * @param mixed $data Dump object
      *
      * @return null
-     * @throws \Interop\Container\Exception\ContainerException
+     * @throws ContainerException
      */
     public static function dump($data)
     {
@@ -439,6 +456,7 @@ trait Helper
 
         }
 
+        return;
     }
 
 
@@ -454,6 +472,7 @@ trait Helper
 
         Debugger::barDump($var);
 
+        return;
     }
 
 
@@ -470,6 +489,7 @@ trait Helper
 
         Debugger::log($log);
 
+        return;
     }
 
 
@@ -487,6 +507,7 @@ trait Helper
 
         Debugger::fireLog($log);
 
+        return;
     }
 
 
@@ -510,6 +531,8 @@ trait Helper
         $r = Base::$response->withHeader('Set-Cookie', $h);
 
         Base::$response = $r;
+
+        return;
     }
 
 
@@ -550,7 +573,7 @@ trait Helper
      * Path for
      *
      * @param string $routeName Route name
-     * @param array $args Route arguments
+     * @param array  $args      Route arguments
      *
      * @return string
      * @throws \Interop\Container\Exception\ContainerException
@@ -569,7 +592,7 @@ trait Helper
      * DO NOT PLAY with this unless you know what you are doing!
      *
      * @param string $template View name
-     * @param array $data Data array
+     * @param array  $data     Data array
      *
      * @return null
      * @throws \Interop\Container\Exception\ContainerException
@@ -774,6 +797,8 @@ trait Helper
         $r->getBody()->write(file_get_contents($filePath));
 
         Base::respond($r);
+
+        return;
     }
 
 
@@ -815,6 +840,7 @@ trait Helper
 
         Base::$app->get(Base::$cfg['locale']['dumpPath'], $dumper);
 
+        return;
     }
 
 
@@ -1019,6 +1045,8 @@ trait Helper
             );
 
         }
+
+        return;
     }
 
     /**
@@ -1046,8 +1074,9 @@ trait Helper
                 $cfg['pass'],
                 $cfg['freeze']
             );
-
         }
+
+        return;
     }
 
 
@@ -1080,7 +1109,8 @@ trait Helper
                 $cfg['pass'],
                 $cfg['freeze']
             );
-
         }
+
+        return;
     }
 }

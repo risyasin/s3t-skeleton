@@ -20,42 +20,52 @@ msgstr "Çeviri test 123"
 
 #: tmp/i18n-cache/ad/ad2d9fca61d3778a99ec0cdd06c5c4b3e5221e6fc8d3ab9434a1c8ca973c65b4.php:44
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:44
+#: tmp/i18n-cache/d4/d4fe43385000231da98ab0e3f73aae3b98adbb610992b51dcd229347281d4226.php:44
 msgid "Sign in to start your session"
 msgstr "Oturum bilgilerinizi giriniz"
 
 #: tmp/i18n-cache/ad/ad2d9fca61d3778a99ec0cdd06c5c4b3e5221e6fc8d3ab9434a1c8ca973c65b4.php:53
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:53
+#: tmp/i18n-cache/d4/d4fe43385000231da98ab0e3f73aae3b98adbb610992b51dcd229347281d4226.php:53
 msgid "User name or Email"
 msgstr "Kullanıcı Adı veya Eposta"
 
 #: tmp/i18n-cache/ad/ad2d9fca61d3778a99ec0cdd06c5c4b3e5221e6fc8d3ab9434a1c8ca973c65b4.php:60
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:60
+#: tmp/i18n-cache/d4/d4fe43385000231da98ab0e3f73aae3b98adbb610992b51dcd229347281d4226.php:60
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:122
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:130
 msgid "Password"
 msgstr "Şifre"
 
 #: tmp/i18n-cache/ad/ad2d9fca61d3778a99ec0cdd06c5c4b3e5221e6fc8d3ab9434a1c8ca973c65b4.php:70
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:70
+#: tmp/i18n-cache/d4/d4fe43385000231da98ab0e3f73aae3b98adbb610992b51dcd229347281d4226.php:70
 msgid "Remember Me"
 msgstr "Beni Hatırla"
 
 #: tmp/i18n-cache/ad/ad2d9fca61d3778a99ec0cdd06c5c4b3e5221e6fc8d3ab9434a1c8ca973c65b4.php:79
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:79
+#: tmp/i18n-cache/d4/d4fe43385000231da98ab0e3f73aae3b98adbb610992b51dcd229347281d4226.php:79
 msgid "Sign In"
 msgstr "Oturum Aç"
 
 #: tmp/i18n-cache/ad/ad2d9fca61d3778a99ec0cdd06c5c4b3e5221e6fc8d3ab9434a1c8ca973c65b4.php:98
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:98
+#: tmp/i18n-cache/d4/d4fe43385000231da98ab0e3f73aae3b98adbb610992b51dcd229347281d4226.php:98
 msgid "Forgot your password?"
 msgstr "Şifrenizi mi unuttunuz?"
 
 #: tmp/i18n-cache/ad/ad2d9fca61d3778a99ec0cdd06c5c4b3e5221e6fc8d3ab9434a1c8ca973c65b4.php:105
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:105
+#: tmp/i18n-cache/d4/d4fe43385000231da98ab0e3f73aae3b98adbb610992b51dcd229347281d4226.php:105
 msgid "Register account"
 msgstr "Hesap oluştur"
 
 #: tmp/i18n-cache/ad/ad2d9fca61d3778a99ec0cdd06c5c4b3e5221e6fc8d3ab9434a1c8ca973c65b4.php:126
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:126
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:155
+#: tmp/i18n-cache/d4/d4fe43385000231da98ab0e3f73aae3b98adbb610992b51dcd229347281d4226.php:155
 msgid "Close"
 msgstr "Kapat"
 
@@ -112,64 +122,226 @@ msgid "Modules / Extras"
 msgstr "Modüller / ekstra"
 
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:125
+#: tmp/i18n-cache/d4/d4fe43385000231da98ab0e3f73aae3b98adbb610992b51dcd229347281d4226.php:125
 msgid "Form submission failed."
 msgstr "Form gönderme başarısız oldu."
 
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:127
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:135
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:143
+#: tmp/i18n-cache/d4/d4fe43385000231da98ab0e3f73aae3b98adbb610992b51dcd229347281d4226.php:127
+#: tmp/i18n-cache/d4/d4fe43385000231da98ab0e3f73aae3b98adbb610992b51dcd229347281d4226.php:135
+#: tmp/i18n-cache/d4/d4fe43385000231da98ab0e3f73aae3b98adbb610992b51dcd229347281d4226.php:143
 msgid "Please try again!"
 msgstr "Lütfen yeniden deneyin."
 
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:133
+#: tmp/i18n-cache/d4/d4fe43385000231da98ab0e3f73aae3b98adbb610992b51dcd229347281d4226.php:133
 msgid "Username or email is missing."
 msgstr "Kullanıcı adı veya e-posta yok."
 
 #: tmp/i18n-cache/5a/5a004e946602559c78d86931e010e172e0f1ec8254facc88f593b43e6b0efa33.php:141
+#: tmp/i18n-cache/d4/d4fe43385000231da98ab0e3f73aae3b98adbb610992b51dcd229347281d4226.php:141
 msgid "Wrong password."
 msgstr "Hatalı şifre."
 
 #: tmp/i18n-cache/65/65665c58fc5a5b421e16c28476b0a711e03412aca088cdc161d25a83a95f9a64.php:37
+#: tmp/i18n-cache/32/3218d979a5ce22ed2456701cc2824136b5898ff71200155783605219ba0ba53f.php:40
 msgid "Toggle navigation"
 msgstr "Menü"
 
 #: tmp/i18n-cache/de/dee0f7749ae0fd3a556e4fc0277a61bb93b1bdc164570869fbac1e214c937bb8.php:24
+#: tmp/i18n-cache/13/13de845dda26eb818d38eb9b07261c3f8bca962cff6e65503cd62d2a7983402a.php:24
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:74
 msgid "Modules"
 msgstr "Modüller"
 
 #: tmp/i18n-cache/de/dee0f7749ae0fd3a556e4fc0277a61bb93b1bdc164570869fbac1e214c937bb8.php:35
+#: tmp/i18n-cache/13/13de845dda26eb818d38eb9b07261c3f8bca962cff6e65503cd62d2a7983402a.php:35
 msgid "Manage Content"
 msgstr "İçeriği Yönet"
 
 #: tmp/i18n-cache/de/dee0f7749ae0fd3a556e4fc0277a61bb93b1bdc164570869fbac1e214c937bb8.php:63
 #: tmp/i18n-cache/de/dee0f7749ae0fd3a556e4fc0277a61bb93b1bdc164570869fbac1e214c937bb8.php:71
+#: tmp/i18n-cache/13/13de845dda26eb818d38eb9b07261c3f8bca962cff6e65503cd62d2a7983402a.php:71
 msgid "Manage Users"
 msgstr "Kullanıcıları Yönet"
 
 #: tmp/i18n-cache/de/dee0f7749ae0fd3a556e4fc0277a61bb93b1bdc164570869fbac1e214c937bb8.php:43
+#: tmp/i18n-cache/13/13de845dda26eb818d38eb9b07261c3f8bca962cff6e65503cd62d2a7983402a.php:43
 msgid "Site pages"
 msgstr "Site sayfaları"
 
 #: tmp/i18n-cache/de/dee0f7749ae0fd3a556e4fc0277a61bb93b1bdc164570869fbac1e214c937bb8.php:49
+#: tmp/i18n-cache/13/13de845dda26eb818d38eb9b07261c3f8bca962cff6e65503cd62d2a7983402a.php:49
 msgid "Create new page"
 msgstr "Sayfa Oluştur"
 
 #: tmp/i18n-cache/de/dee0f7749ae0fd3a556e4fc0277a61bb93b1bdc164570869fbac1e214c937bb8.php:55
+#: tmp/i18n-cache/13/13de845dda26eb818d38eb9b07261c3f8bca962cff6e65503cd62d2a7983402a.php:55
 msgid "Site menus"
 msgstr "Site menüler"
 
 #: tmp/i18n-cache/de/dee0f7749ae0fd3a556e4fc0277a61bb93b1bdc164570869fbac1e214c937bb8.php:61
+#: tmp/i18n-cache/13/13de845dda26eb818d38eb9b07261c3f8bca962cff6e65503cd62d2a7983402a.php:61
 msgid "Templates"
 msgstr "Şablonlar"
 
 #: tmp/i18n-cache/de/dee0f7749ae0fd3a556e4fc0277a61bb93b1bdc164570869fbac1e214c937bb8.php:80
+#: tmp/i18n-cache/13/13de845dda26eb818d38eb9b07261c3f8bca962cff6e65503cd62d2a7983402a.php:80
 msgid "User list"
 msgstr "Kullanıcı Listesi"
 
 #: tmp/i18n-cache/de/dee0f7749ae0fd3a556e4fc0277a61bb93b1bdc164570869fbac1e214c937bb8.php:86
+#: tmp/i18n-cache/13/13de845dda26eb818d38eb9b07261c3f8bca962cff6e65503cd62d2a7983402a.php:86
 msgid "Create new user"
 msgstr "Kullanıcı oluştur"
 
 #: tmp/i18n-cache/de/dee0f7749ae0fd3a556e4fc0277a61bb93b1bdc164570869fbac1e214c937bb8.php:92
+#: tmp/i18n-cache/13/13de845dda26eb818d38eb9b07261c3f8bca962cff6e65503cd62d2a7983402a.php:92
 msgid "User roles"
 msgstr "Kullanıcı rolleri"
+
+#: tmp/i18n-cache/6c/6ca9fddf296d6375264cf44ed994291fea4332e9cde8c77fd6be91cd7d6e0e18.php:40
+msgid "Users List"
+msgstr ""
+
+#: tmp/i18n-cache/6c/6ca9fddf296d6375264cf44ed994291fea4332e9cde8c77fd6be91cd7d6e0e18.php:46
+#: tmp/i18n-cache/eb/ebb1b6cb2d5556a4a6b2ff2f1f3df1aee43c4b7b00a0afbf3100fac34626007e.php:46
+msgid "Search"
+msgstr ""
+
+#: tmp/i18n-cache/6c/6ca9fddf296d6375264cf44ed994291fea4332e9cde8c77fd6be91cd7d6e0e18.php:61
+#: tmp/i18n-cache/eb/ebb1b6cb2d5556a4a6b2ff2f1f3df1aee43c4b7b00a0afbf3100fac34626007e.php:61
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:69
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:82
+msgid "Name"
+msgstr ""
+
+#: tmp/i18n-cache/6c/6ca9fddf296d6375264cf44ed994291fea4332e9cde8c77fd6be91cd7d6e0e18.php:65
+msgid "User"
+msgstr ""
+
+#: tmp/i18n-cache/6c/6ca9fddf296d6375264cf44ed994291fea4332e9cde8c77fd6be91cd7d6e0e18.php:69
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:90
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:98
+msgid "E-mail"
+msgstr ""
+
+#: tmp/i18n-cache/6c/6ca9fddf296d6375264cf44ed994291fea4332e9cde8c77fd6be91cd7d6e0e18.php:73
+#: tmp/i18n-cache/eb/ebb1b6cb2d5556a4a6b2ff2f1f3df1aee43c4b7b00a0afbf3100fac34626007e.php:73
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:170
+msgid "Status"
+msgstr ""
+
+#: tmp/i18n-cache/6c/6ca9fddf296d6375264cf44ed994291fea4332e9cde8c77fd6be91cd7d6e0e18.php:77
+msgid "Roles"
+msgstr ""
+
+#: tmp/i18n-cache/6c/6ca9fddf296d6375264cf44ed994291fea4332e9cde8c77fd6be91cd7d6e0e18.php:81
+#: tmp/i18n-cache/eb/ebb1b6cb2d5556a4a6b2ff2f1f3df1aee43c4b7b00a0afbf3100fac34626007e.php:81
+msgid "Date"
+msgstr ""
+
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:66
+msgid "Basics"
+msgstr ""
+
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:70
+#: tmp/i18n-cache/eb/ebb1b6cb2d5556a4a6b2ff2f1f3df1aee43c4b7b00a0afbf3100fac34626007e.php:77
+msgid "Content"
+msgstr ""
+
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:82
+msgid "Page Name"
+msgstr ""
+
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:91
+msgid ""
+"This field value will be used as internal name of page. Visitors will not "
+"see this."
+msgstr ""
+
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:95
+msgid "Page name"
+msgstr ""
+
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:102
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:110
+#: tmp/i18n-cache/eb/ebb1b6cb2d5556a4a6b2ff2f1f3df1aee43c4b7b00a0afbf3100fac34626007e.php:69
+msgid "Window Title"
+msgstr ""
+
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:118
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:126
+msgid "Page Url"
+msgstr ""
+
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:134
+msgid "Meta Keywords"
+msgstr ""
+
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:142
+msgid "Keywords"
+msgstr ""
+
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:150
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:156
+msgid "Meta Description"
+msgstr ""
+
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:166
+msgid "Language"
+msgstr ""
+
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:209
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:213
+msgid "Page Content"
+msgstr ""
+
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:227
+msgid "Save Draft"
+msgstr ""
+
+#: tmp/i18n-cache/d7/d736b568e1c29d2cc43df6786cdda7464684b91816153721972b4d543572f371.php:231
+msgid "Save Page"
+msgstr ""
+
+#: tmp/i18n-cache/eb/ebb1b6cb2d5556a4a6b2ff2f1f3df1aee43c4b7b00a0afbf3100fac34626007e.php:40
+msgid "Pages List"
+msgstr ""
+
+#: tmp/i18n-cache/eb/ebb1b6cb2d5556a4a6b2ff2f1f3df1aee43c4b7b00a0afbf3100fac34626007e.php:65
+msgid "Path"
+msgstr ""
+
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:57
+msgid "User Info"
+msgstr ""
+
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:61
+msgid "Details"
+msgstr ""
+
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:78
+msgid "Full name for the user"
+msgstr ""
+
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:106
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:114
+msgid "Login name"
+msgstr ""
+
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:138
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:146
+msgid "User Roles"
+msgstr ""
+
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:154
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:160
+msgid "User notes"
+msgstr ""
+
+#: tmp/i18n-cache/fe/fee316c0770118830706c9f0f0fb63fb650d6600d4e725554b93250a42f68696.php:225
+msgid "Save User"
+msgstr ""

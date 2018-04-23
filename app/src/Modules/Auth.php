@@ -102,9 +102,10 @@ class Auth extends AbstractModule
                         $sql = '(user = :user or mail = :user) and password = :pass';
 
                         if (false === Base::$request->getAttribute('csrf_result')) {
-                            Base::set('error', 'form.submission');
+                             Base::set('error', 'form.submission');
                             // exit immediately
-                            Base::render('modules/auth/login.twig');
+                             Base::render('modules/auth/login.twig');
+                            return;
                         }
 
                         $f = (object) Base::$request->getParsedBody();
@@ -115,6 +116,8 @@ class Auth extends AbstractModule
                                 $sql,
                                 ['user' => $f->user, 'pass' => $f->pass]
                             );
+
+                            Base::dump([$user, $f]);
 
                             if ($user['id'] ?? false) {
 
@@ -142,17 +145,23 @@ class Auth extends AbstractModule
                                     Base::$c['auth']['successRoute']
                                 );
 
+                                return;
+
                             } else {
                                 Session::increment('wrongpass');
                                 Base::set('error', 'wrong.password');
                             }
 
                             Base::render('modules/auth/login.twig');
+
+                            return;
+
                         } else {
                             Base::set('error', 'missing.username');
                         }
 
                         Base::render('modules/auth/login.twig');
+                        return;
                     }
                 );
 
